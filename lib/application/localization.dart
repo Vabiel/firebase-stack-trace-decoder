@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:multiple_localization/multiple_localization.dart';
 
 import 'l10n/messages_all.dart';
@@ -33,9 +33,8 @@ class _AppLocalizationsDelegate
 /// When adding, consider the section (for example: `bookingsYourParamName`).
 /// In the `common` section, the name is omitted (eg: `buttonOk`).
 class AppLocalizations {
-
   /// Languages supported by the application.
-  static const supportedLangs = [/*'en', */ 'ru'];
+  static const supportedLangs = ['en', /*'ru'*/];
 
   /// [LocalizationsDelegate] which uses [AppLocalizations.load]
   /// to instantiate the class.
@@ -52,4 +51,8 @@ class AppLocalizations {
   final String locale;
 
   AppLocalizations(this.locale);
+
+  String get decoderTitle => Intl.message('decoder', name: 'decoderTitle');
+
+  String get settingsTitle => Intl.message('settings', name: 'settingsTitle');
 }

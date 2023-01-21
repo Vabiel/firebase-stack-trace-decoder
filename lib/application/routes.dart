@@ -1,15 +1,15 @@
-import 'package:firebase_stacktrace_decoder/screens/home/home_screen.dart';
+import 'package:firebase_stacktrace_decoder/screens/main/main_screen.dart';
 import 'package:flutter/material.dart';
 
 /// Application paths.
 class AppRoutes {
-  static const home = "/";
+  static const main = "/";
 
   /// Builds the main content along the path.
   static Widget buildByRoute(BuildContext context, String route, Object? args) {
     switch (route) {
-      case AppRoutes.home:
-        return const HomeScreen();
+      case AppRoutes.main:
+        return const MainScreen();
     }
 
     throw Exception('Unknown route: $route');
@@ -34,8 +34,8 @@ class AppRoutes {
     return createRoute(settings.name, settings: settings);
   }
 
-  static bool untilHome(Route<dynamic> route) {
-    return route.settings.name == AppRoutes.home;
+  static bool untilMain(Route<dynamic> route) {
+    return route.settings.name == AppRoutes.main;
   }
 
   AppRoutes._();
