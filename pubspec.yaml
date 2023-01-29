@@ -4,12 +4,13 @@ description: A new Flutter project.
 version: 0.0.1+1
 
 environment:
-  sdk: '>=2.18.4 <3.0.0'
+  sdk: '>=2.19.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
+  args: ^2.3.2
   cupertino_icons: ^1.0.2
   flutter_bloc: ^8.1.1
   bloc_concurrency: ^0.2.0
@@ -21,8 +22,11 @@ dependencies:
     sdk: flutter
   equatable: ^2.0.5
   path: ^1.8.2
-  desktop: ^3.1.5
   flutter_phoenix: ^1.1.0
+  pluto_menu_bar: ^3.0.1
+  file_picker: ^5.2.5
+  logging: ^1.1.1
+  meta: ^1.8.0
 
 
 dev_dependencies:
