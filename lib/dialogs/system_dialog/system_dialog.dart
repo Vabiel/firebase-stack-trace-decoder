@@ -1,22 +1,23 @@
 import 'package:file_picker/file_picker.dart';
 
-class OpenFileDialog {
+class SystemDialog {
   static Future<FilePickerResult?> pickSymbol({
     String? dialogTitle,
   }) {
     return _pickSymbols(
       dialogTitle: dialogTitle,
+      allowMultiple: false,
     );
   }
 
   static Future<FilePickerResult?> pickSymbols({
     String? dialogTitle,
   }) {
-    return _pickSymbols(dialogTitle: dialogTitle, allowMultiple: true);
+    return _pickSymbols(dialogTitle: dialogTitle);
   }
 
   static Future<FilePickerResult?> _pickSymbols({
-    bool allowMultiple = false,
+    bool allowMultiple = true,
     String? dialogTitle,
   }) {
     return FilePicker.platform.pickFiles(
@@ -32,21 +33,20 @@ class OpenFileDialog {
   }) {
     return _pickFiles(
       dialogTitle: dialogTitle,
+      allowMultiple: false,
     );
   }
 
   static Future<FilePickerResult?> pickFiles({
-    bool allowMultiple = false,
     String? dialogTitle,
   }) {
     return _pickFiles(
-      allowMultiple: allowMultiple,
       dialogTitle: dialogTitle,
     );
   }
 
   static Future<FilePickerResult?> _pickFiles({
-    bool allowMultiple = false,
+    bool allowMultiple = true,
     String? dialogTitle,
   }) {
     return FilePicker.platform.pickFiles(
@@ -55,5 +55,17 @@ class OpenFileDialog {
     );
   }
 
-  const OpenFileDialog._();
+  static Future<String?> getDirectoryPath({
+    bool lockParentWindow = false,
+    String? initialDirectory,
+    String? dialogTitle,
+  }) {
+    return FilePicker.platform.getDirectoryPath(
+      dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
+      lockParentWindow: lockParentWindow,
+    );
+  }
+
+  const SystemDialog._();
 }
