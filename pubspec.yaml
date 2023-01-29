@@ -27,6 +27,8 @@ dependencies:
   file_picker: ^5.2.5
   logging: ^1.1.1
   meta: ^1.8.0
+  tabbed_view: ^1.16.0
+  fading_edge_scrollview: ^3.0.0
 
 
 dev_dependencies:
