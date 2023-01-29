@@ -51,11 +51,12 @@ class ProjectsList extends StatelessWidget {
     final platforms = project.platforms;
     return Card(
       child: ListTile(
+        enabled: project.isNotEmpty,
         onTap: () => onProjectTap(project),
         // TODO: custom icon
         leading: const FlutterLogo(size: _projectIconSize),
         title: Text(project.name),
-        subtitle: Text(platforms.isNotEmpty
+        subtitle: Text(project.isNotEmpty
             ? _getProjectPlatforms(platforms)
             : l.projectItemEmptyTitle),
         trailing: _buildPopupMenu(l, project),

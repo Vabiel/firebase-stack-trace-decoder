@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 
-
 class Project extends Equatable {
   final String uid;
   final String name;
@@ -16,13 +15,9 @@ class Project extends Equatable {
   })  : assert(name.isNotEmpty),
         assert(version.isNotEmpty);
 
-  @override
-  List<Object?> get props => [
-        uid,
-        name,
-        version,
-        platforms,
-      ];
+  bool get isEmpty => platforms.isEmpty;
+
+  bool get isNotEmpty => platforms.isNotEmpty;
 
   Project copyWith({
     String? name,
@@ -36,6 +31,14 @@ class Project extends Equatable {
       platforms: platforms ?? this.platforms,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        uid,
+        name,
+        version,
+        platforms,
+      ];
 
   @override
   String toString() {
