@@ -34,7 +34,9 @@ class _AppLocalizationsDelegate
 /// In the `common` section, the name is omitted (eg: `buttonOk`).
 class AppLocalizations {
   /// Languages supported by the application.
-  static const supportedLangs = ['en', /*'ru'*/];
+  static const supportedLangs = [
+    'en', /*'ru'*/
+  ];
 
   /// [LocalizationsDelegate] which uses [AppLocalizations.load]
   /// to instantiate the class.
@@ -55,4 +57,15 @@ class AppLocalizations {
   String get decoderTitle => Intl.message('decoder', name: 'decoderTitle');
 
   String get settingsTitle => Intl.message('settings', name: 'settingsTitle');
+
+  String get projectItemEmptyTitle =>
+      Intl.message('empty project', name: 'projectItemEmptyTitle');
+
+  String get editProjectTitle => Intl.message('edit project', name: 'editProjectTitle');
+
+  String get removeProjectTitle => Intl.message('remove project', name: 'removeProjectTitle');
+}
+
+extension AppLocalizationsExtension on BuildContext {
+  AppLocalizations get l => AppLocalizations.of(this);
 }
