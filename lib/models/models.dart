@@ -1,4 +1,5 @@
 library models;
 
-export './core/entity.dart';
-export './core/model.dart';
+export 'core/platform/platform.dart';
+export 'core/artifact/artifact.dart';
+export 'core/project/project.dart';
