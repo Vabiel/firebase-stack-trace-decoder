@@ -20,6 +20,7 @@ class LocalStore {
     _initialized = true;
 
     final directory = await pathProvider.getDatabaseDir();
+    print('dir: ${directory.path}');
     Hive.init(directory.path);
   }
 }
