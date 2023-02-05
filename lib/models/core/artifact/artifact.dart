@@ -41,4 +41,19 @@ class Artifact extends EquatableEntity {
         uid,
         filePath,
       ];
+
+  Artifact copyWith({
+    String? filePath,
+    DateTime? createAt,
+    DateTime? updateAt,
+    int? position,
+  }) {
+    return Artifact(
+      uid: uid,
+      filePath: filePath ?? this.filePath,
+      createAt: createAt ?? this.createAt,
+      updateAt: updateAt ?? this.updateAt,
+      position: position ?? this.position,
+    );
+  }
 }

@@ -42,6 +42,23 @@ class Platform extends EquatableEntity {
         type,
         artifacts,
       ];
+
+  Platform copyWith({
+    PlatformType? type,
+    List<Artifact>? artifacts,
+    DateTime? createAt,
+    DateTime? updateAt,
+    int? position,
+  }) {
+    return Platform(
+      uid: uid,
+      type: type ?? this.type,
+      artifacts: artifacts ?? this.artifacts,
+      createAt: createAt ?? this.createAt,
+      updateAt: updateAt ?? this.updateAt,
+      position: position ?? this.position,
+    );
+  }
 }
 
 enum PlatformType {
