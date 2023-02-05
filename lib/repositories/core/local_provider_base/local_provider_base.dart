@@ -15,6 +15,10 @@ abstract class LocalProviderBase<T extends Entity> {
 
   Iterable<T> getAll() => _box.values;
 
+  T? getByUid(String uid) {
+    return _box.get(uid);
+  }
+
   Future<void> save(T value) async {
     await _box.put(value.uid, value);
   }
@@ -25,11 +29,19 @@ abstract class LocalProviderBase<T extends Entity> {
   }
 
   Future<void> delete(T item) async {
-    await _box.delete(item.uid);
+    await deleteByUid(item.uid);
+  }
+
+  Future<void> deleteByUid(String uid) async {
+    await _box.delete(uid);
   }
 
   Future<void> deleteAll(List<T> list) async {
     final items = list.map((e) => e.uid);
-    await _box.deleteAll(items);
+    await deleteAllByUids(items);
+  }
+
+  Future<void> deleteAllByUids(Iterable<String> uids) async {
+    await _box.deleteAll(uids);
   }
 }
