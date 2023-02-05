@@ -23,7 +23,6 @@ class FirebaseStacktraceDecoder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(AppTheme.systemUIOverlayStyle);
 
     return MaterialApp(
       theme: AppTheme.theme,

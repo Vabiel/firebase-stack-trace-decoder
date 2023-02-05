@@ -29,12 +29,13 @@ class DependencyInjectionInitializer {
     di.registerSingleton(LocalStore(di.get<ApplicationPathProvider>()));
   }
 
-  static void _registerProviders() {
-    // final di = GetIt.instance;
-    // final db = di.get<LocalStore>();
-    // TODO: Возможно какие-то имеет смысл регистрировать при помощи метода
-    // [registerLazySingleton] (создать по требованию).
-    //di.registerSingleton(UserLocalProvider(db));
+  static void _registerProviders() async {
+    final di = GetIt.instance;
+    final db = di.get<LocalStore>();
+    await db.initialize();
+    di.registerSingleton(ArtifactLocalProvider());
+    di.registerSingleton(PlatformLocalProvider());
+    di.registerSingleton(ProjectLocalProvider());
   }
 
   DependencyInjectionInitializer._();

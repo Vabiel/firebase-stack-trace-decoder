@@ -1,35 +1,47 @@
 import 'package:firebase_stacktrace_decoder/models/models.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:hive/hive.dart';
 
 part 'platform.g.dart';
 
-@JsonSerializable()
-class Platform extends Entity {
+@HiveType(typeId: 0)
+class Platform extends EquatableEntity {
+  @HiveField(0)
+  @override
+  final String uid;
+
+  @HiveField(1)
   final PlatformType type;
+
+  @HiveField(2)
   final List<Artifact> artifacts;
 
+  @HiveField(3)
+  @override
+  final DateTime createAt;
+
+  @HiveField(4)
+  @override
+  final DateTime updateAt;
+
+  @HiveField(5)
+  @override
+  final int position;
+
   const Platform({
-    required super.uid,
+    required this.uid,
     required this.type,
     required this.artifacts,
-    super.isRemoved,
+    required this.createAt,
+    required this.updateAt,
+    this.position = 1,
   });
-
-  factory Platform.fromJson(Map<String, dynamic> json) =>
-      _$PlatformFromJson(json);
 
   @override
   List<Object?> get props => [
         uid,
         type,
         artifacts,
-        isRemoved,
       ];
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$PlatformToJson(this);
-  }
 }
 
 enum PlatformType {

@@ -3,30 +3,54 @@
 part of 'platform.dart';
 
 // **************************************************************************
-// JsonSerializableGenerator
+// TypeAdapterGenerator
 // **************************************************************************
 
-Platform _$PlatformFromJson(Map<String, dynamic> json) => Platform(
-      uid: json['uid'] as String,
-      type: $enumDecode(_$PlatformTypeEnumMap, json['type']),
-      artifacts: (json['artifacts'] as List<dynamic>)
-          .map((e) => Artifact.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      isRemoved: json['isRemoved'] as bool? ?? false,
-    );
+class PlatformAdapter extends TypeAdapter<Platform> {
+  @override
+  final int typeId = 0;
 
-Map<String, dynamic> _$PlatformToJson(Platform instance) => <String, dynamic>{
-      'uid': instance.uid,
-      'isRemoved': instance.isRemoved,
-      'type': _$PlatformTypeEnumMap[instance.type]!,
-      'artifacts': instance.artifacts.map((e) => e.toJson()),
+  @override
+  Platform read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
+    return Platform(
+      uid: fields[0] as String,
+      type: fields[1] as PlatformType,
+      artifacts: (fields[2] as List).cast<Artifact>(),
+      createAt: fields[3] as DateTime,
+      updateAt: fields[4] as DateTime,
+      position: fields[5] as int,
+    );
+  }
 
-const _$PlatformTypeEnumMap = {
-  PlatformType.android: 'android',
-  PlatformType.ios: 'ios',
-  PlatformType.linux: 'linux',
-  PlatformType.macos: 'macos',
-  PlatformType.windows: 'windows',
-  PlatformType.fuchsia: 'fuchsia',
-};
+  @override
+  void write(BinaryWriter writer, Platform obj) {
+    writer
+      ..writeByte(6)
+      ..writeByte(0)
+      ..write(obj.uid)
+      ..writeByte(1)
+      ..write(obj.type)
+      ..writeByte(2)
+      ..write(obj.artifacts)
+      ..writeByte(3)
+      ..write(obj.createAt)
+      ..writeByte(4)
+      ..write(obj.updateAt)
+      ..writeByte(5)
+      ..write(obj.position);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlatformAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

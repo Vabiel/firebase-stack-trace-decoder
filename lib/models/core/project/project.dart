@@ -1,42 +1,49 @@
 import 'package:firebase_stacktrace_decoder/models/models.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:hive/hive.dart';
 
 part 'project.g.dart';
 
-@JsonSerializable()
-class Project extends Entity {
+@HiveType(typeId: 0)
+class Project extends EquatableEntity {
+  @HiveField(0)
+  @override
+  final String uid;
+
+  @HiveField(1)
   final String name;
+
+  @HiveField(2)
   final String version;
+
+  @HiveField(3)
   final List<Platform> platforms;
 
+  @HiveField(4)
+  @override
+  final DateTime createAt;
+
+  @HiveField(5)
+  @override
+  final DateTime updateAt;
+
+  @HiveField(6)
+  @override
+  final int position;
+
   Project({
-    required super.uid,
+    required this.uid,
     required this.name,
     required this.version,
+    required this.createAt,
+    required this.updateAt,
+    this.position = 1,
     this.platforms = const [],
-    super.isRemoved,
   })  : assert(name.isNotEmpty),
         assert(version.isNotEmpty);
-
-  factory Project.fromJson(Map<String, dynamic> json) =>
-      _$ProjectFromJson(json);
 
   bool get isEmpty => platforms.isEmpty;
 
   bool get isNotEmpty => platforms.isNotEmpty;
-
-  Project copyWith({
-    String? name,
-    String? version,
-    List<Platform>? platforms,
-  }) {
-    return Project(
-      uid: uid,
-      name: name ?? this.name,
-      version: version ?? this.version,
-      platforms: platforms ?? this.platforms,
-    );
-  }
 
   @override
   List<Object?> get props => [
@@ -46,8 +53,23 @@ class Project extends Entity {
         platforms,
       ];
 
-  @override
-  Map<String, dynamic> toJson() {
-    return _$ProjectToJson(this);
+  Project copyWith({
+    bool? isRemoved,
+    String? name,
+    String? version,
+    List<Platform>? platforms,
+    DateTime? createAt,
+    DateTime? updateAt,
+    int? position,
+  }) {
+    return Project(
+      uid: uid,
+      name: name ?? this.name,
+      version: version ?? this.version,
+      platforms: platforms ?? this.platforms,
+      createAt: createAt ?? this.createAt,
+      updateAt: updateAt ?? this.updateAt,
+      position: position ?? this.position,
+    );
   }
 }

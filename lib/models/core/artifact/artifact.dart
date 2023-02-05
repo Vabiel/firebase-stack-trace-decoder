@@ -1,18 +1,38 @@
 import 'package:firebase_stacktrace_decoder/models/models.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:hive/hive.dart';
 import 'package:path/path.dart';
 
 part 'artifact.g.dart';
 
-@JsonSerializable()
-class Artifact extends Entity {
+@HiveType(typeId: 0)
+class Artifact extends EquatableEntity {
+  @HiveField(0)
+  @override
+  final String uid;
+
+  @HiveField(1)
   final String filePath;
 
-  Artifact({required super.uid, required this.filePath, super.isRemoved})
-      : assert(filePath.isNotEmpty);
+  @HiveField(2)
+  @override
+  final DateTime createAt;
 
-  factory Artifact.fromJson(Map<String, dynamic> json) =>
-      _$ArtifactFromJson(json);
+  @HiveField(3)
+  @override
+  final DateTime updateAt;
+
+  @HiveField(4)
+  @override
+  final int position;
+
+  Artifact({
+    required this.uid,
+    required this.filePath,
+    required this.createAt,
+    required this.updateAt,
+    this.position = 1,
+  })  : assert(uid.isNotEmpty),
+        assert(filePath.isNotEmpty);
 
   String get fileName => basename(filePath);
 
@@ -20,11 +40,5 @@ class Artifact extends Entity {
   List<Object?> get props => [
         uid,
         filePath,
-        isRemoved,
       ];
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$ArtifactToJson(this);
-  }
 }
