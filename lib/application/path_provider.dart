@@ -5,8 +5,6 @@ import 'package:path/path.dart' as path;
 
 /// Path provider for the application.
 class ApplicationPathProvider {
-
-
   Future<Directory> getDatabaseDir() async {
     return _getApplicationDirectory();
   }

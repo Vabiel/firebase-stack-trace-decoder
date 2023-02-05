@@ -1,4 +1,6 @@
 import 'package:firebase_stacktrace_decoder/application/path_provider.dart';
+import 'package:firebase_stacktrace_decoder/cmd/cmd.dart';
+import 'package:firebase_stacktrace_decoder/cmd/flutter_cmd.dart';
 import 'package:firebase_stacktrace_decoder/repositories/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -27,6 +29,8 @@ class DependencyInjectionInitializer {
     // Providers are registered in [_registerProviders].
     di.registerSingleton(ApplicationPathProvider());
     di.registerSingleton(LocalStore(di.get<ApplicationPathProvider>()));
+    di.registerSingleton(Cmd());
+    di.registerSingleton(FlutterCmd(di.get<Cmd>()));
   }
 
   static void _registerProviders() async {
