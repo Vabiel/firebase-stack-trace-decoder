@@ -22,5 +22,5 @@ Map<String, dynamic> _$ProjectToJson(Project instance) => <String, dynamic>{
       'isRemoved': instance.isRemoved,
       'name': instance.name,
       'version': instance.version,
-      'platforms': instance.platforms,
+      'platforms': instance.platforms.map((e) => e.toJson()),
     };

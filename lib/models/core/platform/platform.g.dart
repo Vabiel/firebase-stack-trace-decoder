@@ -19,7 +19,7 @@ Map<String, dynamic> _$PlatformToJson(Platform instance) => <String, dynamic>{
       'uid': instance.uid,
       'isRemoved': instance.isRemoved,
       'type': _$PlatformTypeEnumMap[instance.type]!,
-      'artifacts': instance.artifacts,
+      'artifacts': instance.artifacts.map((e) => e.toJson()),
     };
 
 const _$PlatformTypeEnumMap = {
