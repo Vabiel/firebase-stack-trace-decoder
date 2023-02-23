@@ -1,3 +1,4 @@
+import 'package:firebase_stacktrace_decoder/screens/edit_project/edit_project_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:multiple_localization/multiple_localization.dart';
@@ -86,6 +87,40 @@ class AppLocalizations {
   String platformListItemAddTooltip(String platformName) =>
       Intl.message('add $platformName artifact',
           name: 'platformListItemAddTooltip', args: [platformName]);
+
+  String get editProjectScreenCloseToolTip =>
+      Intl.message('Close window', name: 'editProjectScreenCloseToolTip');
+
+  String get editProjectScreenNewTitle =>
+      Intl.message('Create project', name: 'editProjectScreenNewTitle');
+
+  String get editProjectScreenEditTitle =>
+      Intl.message('Edit project', name: 'editProjectScreenEditTitle');
+
+  String get editProjectScreenNameFieldTitle =>
+      Intl.message('Name', name: 'editProjectScreenNameFieldTitle');
+
+  String get editProjectScreenVersionFieldTitle =>
+      Intl.message('Version', name: 'editProjectScreenVersionFieldTitle');
+
+  String get editProjectScreenDeleteButtonTitle =>
+      Intl.message('Delete', name: 'editProjectScreenDeleteButtonTitle');
+
+  String get editProjectScreenCancelButtonTitle =>
+      Intl.message('Cancel', name: 'editProjectScreenCancelButtonTitle');
+
+  String get editProjectScreenSaveButtonTitle =>
+      Intl.message('Save', name: 'editProjectScreenSaveButtonTitle');
+
+  String get editProjectScreenYesButtonTitle =>
+      Intl.message('Yes', name: 'editProjectScreenYesButtonTitle');
+
+  String get deleteProjectDialogTitle =>
+      Intl.message('Delete project', name: 'deleteProjectDialogTitle');
+
+  String get deleteProjectDialogText =>
+      Intl.message('Do you really want to do that?',
+          name: 'deleteProjectDialogText');
 }
 
 extension AppLocalizationsExtension on BuildContext {
