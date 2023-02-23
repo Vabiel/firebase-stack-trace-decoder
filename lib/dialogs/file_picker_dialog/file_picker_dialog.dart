@@ -1,6 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 
-class SystemDialog {
+class FilePickerDialog {
   static Future<FilePickerResult?> pickSymbol({
     String? dialogTitle,
   }) {
@@ -22,7 +22,7 @@ class SystemDialog {
   }) {
     return FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['.symbols'],
+      allowedExtensions: ['symbols'],
       allowMultiple: allowMultiple,
       dialogTitle: dialogTitle,
     );
@@ -67,5 +67,5 @@ class SystemDialog {
     );
   }
 
-  const SystemDialog._();
+  const FilePickerDialog._();
 }
