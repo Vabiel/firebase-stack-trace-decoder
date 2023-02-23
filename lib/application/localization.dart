@@ -61,9 +61,31 @@ class AppLocalizations {
   String get projectItemEmptyTitle =>
       Intl.message('empty project', name: 'projectItemEmptyTitle');
 
-  String get editProjectTitle => Intl.message('edit project', name: 'editProjectTitle');
+  String get editProjectTitle =>
+      Intl.message('edit project', name: 'editProjectTitle');
 
-  String get removeProjectTitle => Intl.message('remove project', name: 'removeProjectTitle');
+  String get removeProjectTitle =>
+      Intl.message('remove project', name: 'removeProjectTitle');
+
+  String get editTitle => Intl.message('edit', name: 'editTitle');
+
+  String get removeTitle => Intl.message('remove', name: 'removeTitle');
+
+  String get platformSelectorTitle =>
+      Intl.message('Platforms', name: 'platformSelectorTitle');
+
+  String get platformSelectorTooltip =>
+      Intl.message('Select platform', name: 'platformSelectorTooltip');
+
+  String get platformSelectorDialogTitle =>
+      Intl.message('Select artifacts', name: 'platformSelectorDialogTitle');
+
+  String get platformSelectorEditDialogTitle =>
+      Intl.message('Select artifact', name: 'platformSelectorEditDialogTitle');
+
+  String platformListItemAddTooltip(String platformName) =>
+      Intl.message('add $platformName artifact',
+          name: 'platformListItemAddTooltip', args: [platformName]);
 }
 
 extension AppLocalizationsExtension on BuildContext {
