@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 typedef DialogResult<T> = T;
 
-class ConfirmDialog {
-  static Future<bool> show(
+class AppDialog {
+  static Future<bool> showConfirm(
     BuildContext context, {
     required String title,
     required String content,
@@ -31,5 +31,22 @@ class ConfirmDialog {
       ),
     );
     return res ?? false;
+  }
+
+  static Future<void> showAlert(
+    BuildContext context, {
+    required String content,
+    String? title,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: title != null ? Text(title) : null,
+        content: GestureDetector(
+          child: Text(content),
+          onTap: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
   }
 }

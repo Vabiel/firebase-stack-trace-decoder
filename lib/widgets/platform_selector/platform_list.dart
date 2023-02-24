@@ -52,12 +52,16 @@ class _PlatformSelectorState extends State<PlatformList> {
     final l = context.l;
     return Column(
       children: [
-        Row(
-          children: [
-            Flexible(child: widget.headerBuilder(context)),
-            const SizedBox(width: 8),
-            _buildPlatformSelector(context),
-          ],
+        SizedBox(
+          height: 70,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(child: widget.headerBuilder(context)),
+              const SizedBox(width: 8),
+              _buildPlatformSelector(context),
+            ],
+          ),
         ),
         const SizedBox(height: 16),
         for (final platform in _platforms)
@@ -67,9 +71,12 @@ class _PlatformSelectorState extends State<PlatformList> {
   }
 
   Widget _buildPlatformSelector(BuildContext context) {
-    return PlatformSelector(
-      platforms: _platforms,
-      onChange: _onPlatformChange,
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: PlatformSelector(
+        platforms: _platforms,
+        onChange: _onPlatformChange,
+      ),
     );
   }
 

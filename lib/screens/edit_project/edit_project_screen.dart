@@ -2,10 +2,12 @@ import 'dart:io' as io;
 
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
-import 'package:firebase_stacktrace_decoder/dialogs/confirm_dialog/confirm_dialog.dart';
+import 'package:firebase_stacktrace_decoder/blocs/edit_project/edit_project_bloc.dart';
+import 'package:firebase_stacktrace_decoder/dialogs/app_dialog/app_dialog.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/widgets/platform_selector/platform_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EditProjectScreen extends StatefulWidget {
   final Project? project;
@@ -21,23 +23,32 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
   final TextEditingController _versionController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late final PlatformListController _platformListController;
+  late final EditProjectBloc _editProjectBloc;
+  var _isSavePressed = false;
 
   @override
   void initState() {
     super.initState();
     final project = widget.project;
-
     final hasSomePlatforms = project != null && project.hasPlatforms;
+    _editProjectBloc = EditProjectBloc(project);
+    _nameController.text = project?.name ?? '';
+    _versionController.text = project?.version ?? '';
     _platformListController = PlatformListController(
         hasSomePlatforms ? List<Platform>.from(project.platforms) : []);
+    _nameController.addListener(_textListener);
+    _versionController.addListener(_textListener);
   }
 
   @override
   void dispose() {
+    _nameController.removeListener(_textListener);
+    _versionController.removeListener(_textListener);
     _nameController.dispose();
     _versionController.dispose();
     _platformListController.dispose();
     _scrollController.dispose();
+    _editProjectBloc.close();
     super.dispose();
   }
 
@@ -50,22 +61,43 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
     final title = project != null
         ? l.editProjectScreenEditTitle
         : l.editProjectScreenNewTitle;
-    return AspectRatio(
-      aspectRatio: aspectRatio,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          automaticallyImplyLeading: false,
-          leading: !isWindows ? _buildCloseButton(context) : null,
-          actions: isWindows
-              ? [_buildCloseButton(context, withPadding: true)]
-              : null,
-        ),
-        body: Column(
-          children: [
-            _buildPlatformList(l),
-            _buildBottomPanel(context, l, project),
-          ],
+    return BlocListener<EditProjectBloc, EditProjectState>(
+      bloc: _editProjectBloc,
+      listener: (context, state) async {
+        final l = context.l;
+        if (state is EditProjectActionComplete) {
+          final actionResult = state.completeResult;
+          switch (actionResult.result) {
+            case ActionResult.saveSuccess:
+            case ActionResult.deleteSuccess:
+              Navigator.of(context).pop(actionResult);
+              break;
+            case ActionResult.saveFailed:
+              await _showAlertDialog(context, l.saveProjectErrorText);
+              break;
+            case ActionResult.deleteFailed:
+              await _showAlertDialog(context, l.deleteProjectErrorText);
+              break;
+          }
+        }
+      },
+      child: AspectRatio(
+        aspectRatio: aspectRatio,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(title),
+            automaticallyImplyLeading: false,
+            leading: !isWindows ? _buildCloseButton(context) : null,
+            actions: isWindows
+                ? [_buildCloseButton(context, withPadding: true)]
+                : null,
+          ),
+          body: Column(
+            children: [
+              _buildPlatformList(l),
+              _buildBottomPanel(context, l, project),
+            ],
+          ),
         ),
       ),
     );
@@ -82,12 +114,19 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
               controller: _platformListController,
               headerBuilder: (context) {
                 return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildTextField(_nameController,
-                        label: l.editProjectScreenNameFieldTitle),
+                    _buildTextField(
+                      _nameController,
+                      l,
+                      label: l.editProjectScreenNameFieldTitle,
+                    ),
                     const SizedBox(width: 8),
-                    _buildTextField(_versionController,
-                        label: l.editProjectScreenVersionFieldTitle),
+                    _buildTextField(
+                      _versionController,
+                      l,
+                      label: l.editProjectScreenVersionFieldTitle,
+                    ),
                   ],
                 );
               },
@@ -166,26 +205,58 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller,
-      {required String label}) {
-    // TODO: validate if empty before save
+  Widget _buildTextField(
+    TextEditingController controller,
+    AppLocalizations l, {
+    required String label,
+  }) {
+    final bool canShowError = _isSavePressed && controller.text.isEmpty;
+    final errorText = l.filledTextError(label);
     return Flexible(
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
-          label: Text(label),
-          border: const OutlineInputBorder(),
-        ),
+            label: Text(label),
+            border: const OutlineInputBorder(),
+            errorText: canShowError ? errorText : null),
       ),
     );
   }
 
   Future<void> _onDeletePressed(BuildContext context) async {
     final l = context.l;
-    final res = await ConfirmDialog.show(context,
+    final res = await AppDialog.showConfirm(context,
         title: l.deleteProjectDialogTitle, content: l.deleteProjectDialogText);
-    if (res) {}
+    if (res) {
+      final project = widget.project;
+      if (project != null) {
+        final projectUid = project.uid;
+        _editProjectBloc.deleteProject(projectUid);
+      }
+    }
   }
 
-  void _onSavePressed(BuildContext context) {}
+  void _onSavePressed(BuildContext context) {
+    if (_nameController.text.isNotEmpty && _versionController.text.isNotEmpty) {
+      final name = _nameController.text;
+      final version = _versionController.text;
+      final platforms = _platformListController.platforms;
+      _editProjectBloc.saveProject(
+          name: name, version: version, platforms: platforms);
+    } else {
+      setState(() {
+        _isSavePressed = true;
+      });
+    }
+  }
+
+  void _textListener() {
+    if (_isSavePressed) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _showAlertDialog(BuildContext context, String content) {
+    return AppDialog.showAlert(context, content: content);
+  }
 }

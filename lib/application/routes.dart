@@ -1,15 +1,19 @@
+import 'package:firebase_stacktrace_decoder/screens/edit_project/edit_project_screen.dart';
 import 'package:firebase_stacktrace_decoder/screens/main/main_screen.dart';
 import 'package:flutter/material.dart';
 
 /// Application paths.
 class AppRoutes {
   static const main = "/";
+  static const editProject = "/editProject";
 
   /// Builds the main content along the path.
   static Widget buildByRoute(BuildContext context, String route, Object? args) {
     switch (route) {
       case AppRoutes.main:
         return const MainScreen();
+      case AppRoutes.editProject:
+        return const EditProjectScreen();
     }
 
     throw Exception('Unknown route: $route');
@@ -18,7 +22,7 @@ class AppRoutes {
   /// Creates a [Route] given a path string.
   static Route<dynamic> createRoute(String? route, {RouteSettings? settings}) {
     final value = route ?? '';
-        return _createRoute<Object>(value, settings);
+    return _createRoute<Object>(value, settings);
   }
 
   /// Creates a [Route] given a path string.

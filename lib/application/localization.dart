@@ -121,6 +121,18 @@ class AppLocalizations {
   String get deleteProjectDialogText =>
       Intl.message('Do you really want to do that?',
           name: 'deleteProjectDialogText');
+
+  String get saveProjectErrorText =>
+      Intl.message('An error has occurred while saving a project',
+          name: 'saveProjectErrorText');
+
+  String get deleteProjectErrorText =>
+      Intl.message('An error has occurred while deleting a project',
+          name: 'deleteProjectErrorText');
+
+  String filledTextError(String fieldName) =>
+      Intl.message('$fieldName must be filled',
+          name: 'filledTextError', args: [fieldName]);
 }
 
 extension AppLocalizationsExtension on BuildContext {
