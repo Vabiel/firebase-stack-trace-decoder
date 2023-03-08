@@ -1,4 +1,3 @@
-import 'package:firebase_stacktrace_decoder/screens/edit_project/edit_project_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:multiple_localization/multiple_localization.dart';
@@ -103,17 +102,20 @@ class AppLocalizations {
   String get editProjectScreenVersionFieldTitle =>
       Intl.message('Version', name: 'editProjectScreenVersionFieldTitle');
 
-  String get editProjectScreenDeleteButtonTitle =>
-      Intl.message('Delete', name: 'editProjectScreenDeleteButtonTitle');
+  String get addButtonTitle => Intl.message('Add', name: 'addButtonTitle');
 
-  String get editProjectScreenCancelButtonTitle =>
-      Intl.message('Cancel', name: 'editProjectScreenCancelButtonTitle');
+  String get deleteButtonTitle =>
+      Intl.message('Delete', name: 'deleteButtonTitle');
 
-  String get editProjectScreenSaveButtonTitle =>
-      Intl.message('Save', name: 'editProjectScreenSaveButtonTitle');
+  String get cancelButtonTitle =>
+      Intl.message('Cancel', name: 'cancelButtonTitle');
 
-  String get editProjectScreenYesButtonTitle =>
-      Intl.message('Yes', name: 'editProjectScreenYesButtonTitle');
+  String get selectButtonTitle =>
+      Intl.message('Select', name: 'selectButtonTitle');
+
+  String get saveButtonTitle => Intl.message('Save', name: 'saveButtonTitle');
+
+  String get yesButtonTitle => Intl.message('Yes', name: 'yesButtonTitle');
 
   String get deleteProjectDialogTitle =>
       Intl.message('Delete project', name: 'deleteProjectDialogTitle');
@@ -133,6 +135,27 @@ class AppLocalizations {
   String filledTextError(String fieldName) =>
       Intl.message('$fieldName must be filled',
           name: 'filledTextError', args: [fieldName]);
+
+  String get projectListTooltipText =>
+      Intl.message('Double click to select a project',
+          name: 'projectListTooltipText');
+
+  String get projectListTitle =>
+      Intl.message('My projects', name: 'projectListTitle');
+
+  String get projectLisAddBtnTooltip =>
+      Intl.message('Add new project', name: 'projectLisAddBtnTooltip');
+
+  String get disableProjectTooltipText =>
+      Intl.message('Add platform to select a project',
+          name: 'disableProjectTooltipText');
+
+  String get previewSelectorDialogTitle =>
+      Intl.message('Select preview', name: 'previewSelectorDialogTitle');
+
+  String get dropTargetBoxTitle =>
+      Intl.message('Drag-and-drop stacktrace files to start decoding',
+          name: 'dropTargetBoxTitle');
 }
 
 extension AppLocalizationsExtension on BuildContext {
