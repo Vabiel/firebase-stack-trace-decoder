@@ -6,6 +6,7 @@ class ActionPopupMenu extends StatelessWidget {
   final String? editActionTitle;
   final VoidCallback onRemoveActionSelect;
   final VoidCallback onEditActionSelect;
+  final Color? iconColor;
 
   const ActionPopupMenu({
     Key? key,
@@ -13,6 +14,7 @@ class ActionPopupMenu extends StatelessWidget {
     required this.onEditActionSelect,
     this.removeActionTitle,
     this.editActionTitle,
+    this.iconColor,
   }) : super(key: key);
 
   @override
@@ -33,7 +35,7 @@ class ActionPopupMenu extends StatelessWidget {
             break;
         }
       },
-      icon: const Icon(Icons.more_vert_rounded),
+      icon: Icon(Icons.more_vert_rounded, color: iconColor),
       itemBuilder: (context) => <PopupMenuEntry<PopupMenuAction>>[
         for (final action in PopupMenuAction.values)
           _buildPopupMenuItem(context, action)
