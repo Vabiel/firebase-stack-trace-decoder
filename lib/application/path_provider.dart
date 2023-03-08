@@ -6,7 +6,13 @@ import 'package:path/path.dart' as path;
 /// Path provider for the application.
 class ApplicationPathProvider {
   Future<Directory> getDatabaseDir() async {
-    return _getApplicationDirectory();
+    return _getApplicationDirectory('stacktrace_decoder');
+  }
+
+  Future<Directory> getOutputsDir() async {
+    final mainDir = await getDatabaseDir();
+    final result = _getSubDir(mainDir, 'outputs');
+    return result;
   }
 
   Future<Directory> _getApplicationDirectory([String? subDirName]) async {
@@ -30,5 +36,12 @@ class ApplicationPathProvider {
     }
 
     return result;
+  }
+
+  String getResultFilename(String decodeFilename) {
+    final now = DateTime.now();
+    final decodeName = path.basenameWithoutExtension(decodeFilename);
+    final name = 'result_${decodeName}_${now.millisecondsSinceEpoch}.txt';
+    return name;
   }
 }
