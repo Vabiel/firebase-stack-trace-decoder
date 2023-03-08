@@ -28,6 +28,25 @@ class FilePickerDialog {
     );
   }
 
+  static Future<PlatformFile?> pickImage({
+    String? dialogTitle,
+  }) {
+    return _pickImage(dialogTitle: dialogTitle);
+  }
+
+  static Future<PlatformFile?> _pickImage({
+    String? dialogTitle,
+  }) async {
+    final res = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      dialogTitle: dialogTitle,
+    );
+    if (res != null && res.files.isNotEmpty) {
+      return res.files.first;
+    }
+    return null;
+  }
+
   static Future<FilePickerResult?> pickFile({
     String? dialogTitle,
   }) {

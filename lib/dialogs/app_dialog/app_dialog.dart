@@ -20,12 +20,11 @@ class AppDialog {
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child:
-                Text(negativeBtnTitle ?? l.editProjectScreenCancelButtonTitle),
+            child: Text(negativeBtnTitle ?? l.cancelButtonTitle),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(positiveBtnTitle ?? l.editProjectScreenYesButtonTitle),
+            child: Text(positiveBtnTitle ?? l.yesButtonTitle),
           ),
         ],
       ),
@@ -47,6 +46,34 @@ class AppDialog {
           onTap: () => Navigator.of(context).pop(),
         ),
       ),
+    );
+  }
+
+  static Future<Object?> showForm(
+    BuildContext context, {
+    required Widget child,
+    double? aspectRatio,
+  }) {
+    const defaultAspectRatio = 4 / 3;
+    final ratio = aspectRatio ?? defaultAspectRatio;
+    return showGeneralDialog(
+      context: context,
+      pageBuilder: (_, anim, anim2) {
+        return child;
+      },
+      transitionBuilder: (context, anim, anim2, child) {
+        var curve = Curves.easeInOut.transform(anim.value);
+        return Transform.scale(
+          scale: curve,
+          child: Dialog(
+            child: AspectRatio(
+              aspectRatio: ratio,
+              child: child,
+            ),
+          ),
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 300),
     );
   }
 }
