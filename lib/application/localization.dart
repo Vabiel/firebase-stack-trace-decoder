@@ -132,6 +132,10 @@ class AppLocalizations {
       Intl.message('An error has occurred while deleting a project',
           name: 'deleteProjectErrorText');
 
+  String get saveDecodeResultErrorText =>
+      Intl.message('An error has occurred while saving decode result',
+          name: 'saveDecodeResultErrorText');
+
   String filledTextError(String fieldName) =>
       Intl.message('$fieldName must be filled',
           name: 'filledTextError', args: [fieldName]);
@@ -156,6 +160,18 @@ class AppLocalizations {
   String get dropTargetBoxTitle =>
       Intl.message('Drag-and-drop stacktrace files to start decoding',
           name: 'dropTargetBoxTitle');
+
+  String get decodeResultScreenTitle =>
+      Intl.message('Decode result', name: 'decodeResultScreenTitle');
+
+  String get decodeResultScreenSaveTitle =>
+      Intl.message('Save result', name: 'decodeResultScreenSaveTitle');
+
+  String get decodeResultScreenSaveAllTitle =>
+      Intl.message('Save all files', name: 'decodeResultScreenSaveAllTitle');
+
+  String get previewSelectorTitle =>
+      Intl.message('Preview', name: 'previewSelectorTitle');
 }
 
 extension AppLocalizationsExtension on BuildContext {
