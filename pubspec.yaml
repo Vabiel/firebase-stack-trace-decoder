@@ -1,45 +1,50 @@
 name: firebase_stacktrace_decoder
-description: A new Flutter project.
 
-version: 0.0.1+1
+version: 0.1.0
+
+description: A new Flutter project.
 
 environment:
   sdk: '>=2.19.0 <3.0.0'
 
 dependencies:
-  flutter:
-    sdk: flutter
-
-  args: ^2.3.2
-  cupertino_icons: ^1.0.2
-  flutter_bloc: ^8.1.1
-  bloc_concurrency: ^0.2.0
-  intl: ^0.17.0
-  path_provider: ^2.0.11
-  provider: ^6.0.5
-  get_it: ^7.2.0
-  multiple_localization: ^0.3.0
-  flutter_localizations:
-    sdk: flutter
+  args: ^2.4.0
+  bloc_concurrency: ^0.2.1
+  desktop_drop: ^0.4.1
+  dotted_border: ^2.0.0+3
   equatable: ^2.0.5
-  path: ^1.8.2
-  flutter_phoenix: ^1.1.0
-  pluto_menu_bar: ^3.0.1
-  file_picker: ^5.2.5
-  logging: ^1.1.1
-  meta: ^1.8.0
-  tabbed_view: ^1.16.0
   fading_edge_scrollview: ^3.0.0
+  file_picker: ^5.2.5
+  flutter_bloc: ^8.1.2
+  get: ^4.6.5
   hive: ^2.2.3
-
+  intl: ^0.17.0
+  list_ext: ^1.0.6
+  logging: ^1.1.1
+  loader_overlay: ^2.1.0
+  meta: ^1.8.0
+  multiple_localization: ^0.3.0
+  multi_split_view: ^2.4.0
+  path: ^1.8.2
+  path_provider: ^2.0.11
+  pluto_menu_bar: ^3.0.1
+  string_ext: ^0.2.0
+  tabbed_view: ^1.16.0+1
+  toggle_switch: ^2.0.1
+  uuid: ^3.0.7
+  url_launcher: ^6.1.10
+  flutter: 
+    sdk: flutter
+  flutter_localizations: 
+    sdk: flutter
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   build_runner: ^2.3.3
+  flutter_lints: ^2.0.1
   hive_generator: ^2.0.0
-  flutter_lints: ^2.0.0
+  pubspec_dependency_sorter: ^1.0.3
+  flutter_test: 
+    sdk: flutter
 
 flutter:
-
   uses-material-design: true
