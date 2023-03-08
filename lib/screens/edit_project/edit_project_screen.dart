@@ -1,5 +1,3 @@
-import 'dart:io' as io;
-
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
 import 'package:firebase_stacktrace_decoder/blocs/screens/edit_project/edit_project_bloc.dart';
@@ -63,10 +61,6 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
   Widget build(BuildContext context) {
     final l = context.l;
     final project = widget.project;
-    final isWindows = io.Platform.isWindows;
-    final title = project != null
-        ? l.editProjectScreenEditTitle
-        : l.editProjectScreenNewTitle;
     return BlocListener<EditProjectBloc, EditProjectState>(
       bloc: _editProjectBloc,
       listener: (context, state) async {
@@ -87,22 +81,12 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
           }
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          automaticallyImplyLeading: false,
-          leading: !isWindows ? _buildCloseButton(context) : null,
-          actions: isWindows
-              ? [_buildCloseButton(context, withPadding: true)]
-              : null,
-        ),
-        body: ClipRect(
-          child: Column(
-            children: [
-              _buildPlatformList(l),
-              _buildBottomPanel(context, l, project),
-            ],
-          ),
+      child: ClipRect(
+        child: Column(
+          children: [
+            _buildPlatformList(l),
+            _buildBottomPanel(context, l, project),
+          ],
         ),
       ),
     );
@@ -186,23 +170,6 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
             const SizedBox(width: 8),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCloseButton(
-    BuildContext context, {
-    bool withPadding = false,
-  }) {
-    final l = context.l;
-    return Padding(
-      padding: withPadding ? const EdgeInsets.all(8.0) : EdgeInsets.zero,
-      child: IconButton(
-        icon: const Icon(Icons.close),
-        hoverColor: Colors.red,
-        splashRadius: 20,
-        onPressed: () => Navigator.of(context).pop(),
-        tooltip: l.editProjectScreenCloseToolTip,
       ),
     );
   }
