@@ -1,75 +1,95 @@
 import 'package:firebase_stacktrace_decoder/application/routes.dart';
 import 'package:firebase_stacktrace_decoder/application/theme.dart';
+import 'package:firebase_stacktrace_decoder/blocs/app/app_bloc.dart';
+import 'package:firebase_stacktrace_decoder/screens/launch_screen/launch_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 import 'localization.dart';
 
 class FirebaseStacktraceDecoder extends StatelessWidget {
+  /// Creates a list of localization delegates for the application.
+  static final List<LocalizationsDelegate<dynamic>> _localizationsDelegates = [
+    AppLocalizations.delegate,
+    DefaultCupertinoLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate
+  ];
+
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey();
 
   FirebaseStacktraceDecoder({super.key}) {
     // Needed to refer to plugins during initialization
     WidgetsFlutterBinding.ensureInitialized();
-
-    // block orientation change
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-    Bloc.observer = _ApplicationBlocObserver(logEnabled: false);
   }
 
   @override
   Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AppBloc()..shown(),
+        ),
+      ],
+      child: BlocBuilder<AppBloc, AppState>(
+        buildWhen: (prev, cur) => cur is! AppReadySuccess && cur is! AppReady,
+        builder: (context, state) {
+          if (state is AppInitial || state is AppLoadInProgress) {
+            return _buildLaunchApp();
+          }
 
-    return MaterialApp(
-      theme: AppTheme.theme,
-      supportedLocales: AppLocalizations.supportedLocales,
-      navigatorKey: _navigatorKey,
-      localizationsDelegates: _createLocalization(),
-      onGenerateRoute: AppRoutes.onGenerateRoute,
+          if (state is AppLoadSuccess) {
+            return _buildMainApp();
+          }
+
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
     );
   }
 
-  /// Creates a list of localization delegates for the application.
-  List<LocalizationsDelegate<dynamic>> _createLocalization() => [
-        AppLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate
-      ];
-}
-
-/// Auxiliary class for global tracking of the action with all blocs
-class _ApplicationBlocObserver extends BlocObserver {
-  final bool logEnabled;
-
-  _ApplicationBlocObserver({this.logEnabled = false});
-
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    if (logEnabled) _logTransition(bloc, transition);
-    super.onTransition(bloc, transition);
+  Widget _buildLaunchApp() {
+    return _buildApp(
+      home: const LaunchScreen(),
+    );
   }
 
-  @override
-  void onError(BlocBase bloc, Object error, StackTrace stacktrace) {
-    super.onError(bloc, error, stacktrace);
-    debugPrint('️Error:\n$error. Stacktrace: $stacktrace');
+  Widget _buildMainApp() {
+    return _buildApp(
+      initialRoute: AppRoutes.main,
+      navigatorKey: _navigatorKey,
+      onGenerateRoute: _onGenerateRoute,
+    );
   }
 
-  void _logTransition(Bloc bloc, Transition transition) {
-    final title = '================= [ ${bloc.runtimeType} ] =================';
-    final separator = List.generate(title.length, (index) => '=').join();
-    debugPrint('''
-$title
-Event     : ${transition.event}
-Prev state: ${transition.currentState}
-Next state: ${transition.nextState}
-$separator
-''');
+  Widget _buildApp({
+    Widget? home,
+    String? initialRoute,
+    GlobalKey<NavigatorState>? navigatorKey,
+    RouteFactory? onGenerateRoute,
+    TransitionBuilder? builder,
+  }) {
+    return GlobalLoaderOverlay(
+      overlayColor: Colors.black,
+      useDefaultLoading: true,
+      child: MaterialApp(
+        onGenerateRoute: onGenerateRoute,
+        navigatorKey: navigatorKey,
+        initialRoute: initialRoute,
+        theme: AppTheme.theme,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: _localizationsDelegates,
+        builder: builder,
+        home: home,
+      ),
+    );
+  }
+
+  Route<dynamic> _onGenerateRoute(RouteSettings settings) {
+    return AppRoutes.createRoute(settings.name, settings: settings);
   }
 }
