@@ -3,29 +3,25 @@ import 'package:hive/hive.dart';
 
 abstract class LocalProviderBase<T extends Entity> {
   final String boxName;
-  late Box<T> _box;
+  late final _box = Hive.openBox<T>(boxName);
 
-  LocalProviderBase(this.boxName) {
-    _init();
+  LocalProviderBase(this.boxName);
+
+  Future<List<T>> getAll() async {
+    return (await _box).values.toList();
   }
 
-  Future<void> _init() async {
-    _box = await Hive.openBox<T>(boxName);
-  }
-
-  Iterable<T> getAll() => _box.values;
-
-  T? getByUid(String uid) {
-    return _box.get(uid);
+  Future<T?> getByUid(String uid) async {
+    return (await _box).get(uid);
   }
 
   Future<void> save(T value) async {
-    await _box.put(value.uid, value);
+    await (await _box).put(value.uid, value);
   }
 
   Future<void> saveAll(List<T> list) async {
     final items = <dynamic, T>{for (final value in list) value.uid: value};
-    await _box.putAll(items);
+    await (await _box).putAll(items);
   }
 
   Future<void> delete(T item) async {
@@ -33,7 +29,7 @@ abstract class LocalProviderBase<T extends Entity> {
   }
 
   Future<void> deleteByUid(String uid) async {
-    await _box.delete(uid);
+    await (await _box).delete(uid);
   }
 
   Future<void> deleteAll(List<T> list) async {
@@ -42,6 +38,6 @@ abstract class LocalProviderBase<T extends Entity> {
   }
 
   Future<void> deleteAllByUids(Iterable<String> uids) async {
-    await _box.deleteAll(uids);
+    await (await _box).deleteAll(uids);
   }
 }
