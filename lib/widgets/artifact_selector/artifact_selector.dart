@@ -37,7 +37,7 @@ class _ArtifactSelectorState extends State<ArtifactSelector> {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: FittedBox(
               child: Text(
-                artifact.fileName,
+                artifact.filename,
                 maxLines: 1,
               ),
             ),

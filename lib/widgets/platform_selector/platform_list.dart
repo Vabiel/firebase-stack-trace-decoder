@@ -1,7 +1,9 @@
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
+import 'package:firebase_stacktrace_decoder/application/theme.dart';
 import 'package:firebase_stacktrace_decoder/dialogs/file_picker_dialog/file_picker_dialog.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/widgets/action_popup_menu/action_popup_menu.dart';
+import 'package:firebase_stacktrace_decoder/widgets/buttons/buttons.dart';
 import 'package:firebase_stacktrace_decoder/widgets/platform_selector/platform_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:list_ext/list_ext.dart';
@@ -53,7 +55,7 @@ class _PlatformSelectorState extends State<PlatformList> {
     return Column(
       children: [
         SizedBox(
-          height: 70,
+          height: 128,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -84,20 +86,14 @@ class _PlatformSelectorState extends State<PlatformList> {
     final platformName = platform.name;
     return Container(
       margin: const EdgeInsetsDirectional.only(bottom: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: const Color(0xff9b9b9b)),
-      ),
+      decoration: AppTheme.boxBorder,
       child: ExpansionTile(
         title: Row(
           children: [
             Text(platformName),
             const Spacer(),
-            IconButton(
-              color: Colors.green,
-              splashRadius: 20,
+            AddButton(
               onPressed: () async => _onAddArtifacts(l, platform),
-              icon: const Icon(Icons.add_circle),
               tooltip: l.platformListItemAddTooltip(platformName),
             )
           ],
@@ -108,7 +104,7 @@ class _PlatformSelectorState extends State<PlatformList> {
               padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
               child: Card(
                 child: ListTile(
-                  title: Text(artifact.fileName),
+                  title: Text(artifact.filename),
                   subtitle: Text(artifact.filePath),
                   trailing: ActionPopupMenu(
                     onRemoveActionSelect: () =>

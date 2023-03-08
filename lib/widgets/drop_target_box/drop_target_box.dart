@@ -1,11 +1,14 @@
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
+import 'package:firebase_stacktrace_decoder/application/theme.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:flutter/material.dart';
 
+typedef OnDragDone = void Function(DropDoneDetails, Artifact);
+
 class DropTargetBox extends StatefulWidget {
   final Artifact artifact;
-  final ValueChanged<DropDoneDetails> onDragDone;
+  final OnDragDone onDragDone;
 
   const DropTargetBox({
     super.key,
@@ -22,14 +25,14 @@ class _DropTargetBoxState extends State<DropTargetBox> {
 
   @override
   Widget build(BuildContext context) {
-    final defaultBorder = Border.all(color: const Color(0xff9b9b9b));
+    final defaultBorder = Border.all(color: AppTheme.borderColor);
     final draggingBorder = Border.all(color: Colors.blue, width: 5);
     final l = context.l;
 
     return DropTarget(
       onDragEntered: _onDragEntered,
       onDragExited: _onDragExited,
-      onDragDone: widget.onDragDone,
+      onDragDone: (details) => widget.onDragDone(details, widget.artifact),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,
@@ -54,4 +57,14 @@ class _DropTargetBoxState extends State<DropTargetBox> {
       _isDragging = false;
     });
   }
+}
+
+class DecodeResult {
+  final String filename;
+  final String result;
+
+  const DecodeResult({
+    required this.filename,
+    required this.result,
+  });
 }
