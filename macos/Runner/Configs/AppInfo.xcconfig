@@ -11,4 +11,4 @@ PRODUCT_NAME = firebase_stacktrace_decoder
 PRODUCT_BUNDLE_IDENTIFIER = com.vabiel.firebaseStacktraceDecoder
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2023 com.vabiel. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2023 Vabiel. All rights reserved.
