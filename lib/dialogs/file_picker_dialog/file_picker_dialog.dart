@@ -75,14 +75,22 @@ class FilePickerDialog {
   }
 
   static Future<String?> getDirectoryPath({
-    bool lockParentWindow = false,
     String? initialDirectory,
     String? dialogTitle,
   }) {
     return FilePicker.platform.getDirectoryPath(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
-      lockParentWindow: lockParentWindow,
+    );
+  }
+
+  static Future<String?> saveFile({
+    String? initialDirectory,
+    String? dialogTitle,
+  }) {
+    return FilePicker.platform.saveFile(
+      dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
     );
   }
 

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
+import 'package:firebase_stacktrace_decoder/widgets/buttons/buttons.dart';
 import 'package:flutter/material.dart';
 
 typedef DialogResult<T> = T;
@@ -51,15 +54,17 @@ class AppDialog {
 
   static Future<Object?> showForm(
     BuildContext context, {
-    required Widget child,
+    required String title,
+    required Widget body,
     double? aspectRatio,
   }) {
     const defaultAspectRatio = 4 / 3;
     final ratio = aspectRatio ?? defaultAspectRatio;
+    final isWindows = Platform.isWindows;
     return showGeneralDialog(
       context: context,
       pageBuilder: (_, anim, anim2) {
-        return child;
+        return body;
       },
       transitionBuilder: (context, anim, anim2, child) {
         var curve = Curves.easeInOut.transform(anim.value);
@@ -68,12 +73,34 @@ class AppDialog {
           child: Dialog(
             child: AspectRatio(
               aspectRatio: ratio,
-              child: child,
+              child: Scaffold(
+                appBar: AppBar(
+                  title: Text(title),
+                  automaticallyImplyLeading: false,
+                  leading: !isWindows ? _buildCloseButton(context) : null,
+                  actions: isWindows
+                      ? [_buildCloseButton(context, withPadding: true)]
+                      : null,
+                ),
+                body: child,
+              ),
             ),
           ),
         );
       },
       transitionDuration: const Duration(milliseconds: 300),
+    );
+  }
+
+  static Widget _buildCloseButton(
+    BuildContext context, {
+    bool withPadding = false,
+  }) {
+    return Padding(
+      padding: withPadding ? const EdgeInsets.all(8.0) : EdgeInsets.zero,
+      child: CloseBtn(
+        onPressed: () => Navigator.of(context).pop(),
+      ),
     );
   }
 }
