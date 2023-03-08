@@ -12,24 +12,12 @@ class EditProjectInitial extends EditProjectState {
 }
 
 class EditProjectActionComplete extends EditProjectState {
-  final CompleteResult completeResult;
-
-  const EditProjectActionComplete(this.completeResult);
-
-  @override
-  List<Object> get props => [completeResult];
-}
-
-class CompleteResult {
   final ActionResult result;
-  final Project? project;
 
-  const CompleteResult(this.result, [this.project]);
+  const EditProjectActionComplete(this.result);
 
   @override
-  String toString() {
-    return 'CompleteResult{result: $result, project: $project}';
-  }
+  List<Object> get props => [result];
 }
 
 enum ActionResult {

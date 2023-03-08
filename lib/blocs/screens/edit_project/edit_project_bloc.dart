@@ -3,7 +3,6 @@ import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/repositories/repositories.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:uuid/uuid.dart';
 
 part 'edit_project_event.dart';
@@ -12,11 +11,12 @@ part 'edit_project_state.dart';
 
 class EditProjectBloc extends Bloc<EditProjectEvent, EditProjectState> {
   final Project? input;
-  late final ProjectLocalProvider _projectLocalProvider;
+  final ProjectLocalProvider projectLocalProvider;
 
-  EditProjectBloc(this.input) : super(const EditProjectInitial()) {
-    final di = GetIt.instance;
-    _projectLocalProvider = di.get();
+  EditProjectBloc({
+    required this.projectLocalProvider,
+    required this.input,
+  }) : super(const EditProjectInitial()) {
     on<EditProjectSavePressed>(_saveProject);
     on<EditProjectDeletePressed>(_deleteProject);
   }
@@ -49,13 +49,11 @@ class EditProjectBloc extends Bloc<EditProjectEvent, EditProjectState> {
       );
     }
     try {
-      await _projectLocalProvider.save(updatedProject);
-      emit(EditProjectActionComplete(
-          CompleteResult(ActionResult.saveSuccess, updatedProject)));
+      await projectLocalProvider.save(updatedProject);
+      emit(const EditProjectActionComplete(ActionResult.saveSuccess));
     } catch (error) {
       debugPrint('save error: $error');
-      emit(const EditProjectActionComplete(
-          CompleteResult(ActionResult.saveFailed)));
+      emit(const EditProjectActionComplete(ActionResult.saveFailed));
     }
   }
 
@@ -63,13 +61,11 @@ class EditProjectBloc extends Bloc<EditProjectEvent, EditProjectState> {
       EditProjectDeletePressed event, Emitter<EditProjectState> emit) async {
     try {
       final uid = event.projectUid;
-      await _projectLocalProvider.deleteByUid(uid);
-      emit(const EditProjectActionComplete(
-          CompleteResult(ActionResult.deleteSuccess)));
+      await projectLocalProvider.deleteByUid(uid);
+      emit(const EditProjectActionComplete(ActionResult.deleteSuccess));
     } catch (error) {
       debugPrint('delete error: $error');
-      emit(const EditProjectActionComplete(
-          CompleteResult(ActionResult.deleteFailed)));
+      emit(const EditProjectActionComplete(ActionResult.deleteFailed));
     }
   }
 }
