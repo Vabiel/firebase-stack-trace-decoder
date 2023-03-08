@@ -1,3 +1,4 @@
+import 'package:firebase_stacktrace_decoder/screens/decode_result/decode_result.dart';
 import 'package:firebase_stacktrace_decoder/screens/edit_project/edit_project_screen.dart';
 import 'package:firebase_stacktrace_decoder/screens/main/main_screen.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 class AppRoutes {
   static const main = "/";
   static const editProject = "/editProject";
+  static const decodeResult = "/decodeResult";
 
   /// Builds the main content along the path.
   static Widget buildByRoute(BuildContext context, String route, Object? args) {
@@ -14,6 +16,8 @@ class AppRoutes {
         return const MainScreen();
       case AppRoutes.editProject:
         return const EditProjectScreen();
+      case AppRoutes.decodeResult:
+        return const DecodeResultScreen();
     }
 
     throw Exception('Unknown route: $route');
