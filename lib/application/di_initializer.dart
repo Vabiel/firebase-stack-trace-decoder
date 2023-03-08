@@ -3,7 +3,10 @@ import 'package:firebase_stacktrace_decoder/cmd/cmd.dart';
 import 'package:firebase_stacktrace_decoder/cmd/flutter_cmd.dart';
 import 'package:firebase_stacktrace_decoder/repositories/repositories.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+
+import '../models/models.dart';
 
 /// Dependency management initializer.
 class DependencyInjectionInitializer {
@@ -13,33 +16,35 @@ class DependencyInjectionInitializer {
   static bool get isInitialized => _initialized;
 
   /// Initializes dependency management.
-  static void initialize() {
+  static Future<void> initialize() async {
     if (_initialized) {
       assert(false, 'DI Already initialized');
       return;
     }
     _initialized = true;
 
-    _registerCommon();
-    _registerProviders();
+    await _registerCommon();
+    await _registerProviders();
   }
 
-  static void _registerCommon() {
-    final di = GetIt.instance;
+  static Future<void> _registerCommon() async {
     // Providers are registered in [_registerProviders].
-    di.registerSingleton(ApplicationPathProvider());
-    di.registerSingleton(LocalStore(di.get<ApplicationPathProvider>()));
-    di.registerSingleton(Cmd());
-    di.registerSingleton(FlutterCmd(di.get<Cmd>()));
+    Get.put(ApplicationPathProvider());
+    Get.put(LocalStore(Get.find()));
+    Get.put(Cmd());
+    Get.put(FlutterCmd(Get.find()));
   }
 
-  static void _registerProviders() async {
-    final di = GetIt.instance;
-    final db = di.get<LocalStore>();
+  static Future<void> _registerProviders() async {
+    Get.put(ArtifactLocalProvider());
+    Get.put(PlatformLocalProvider());
+    Get.put(ProjectLocalProvider());
+    final db = Get.find<LocalStore>();
     await db.initialize();
-    di.registerSingleton(ArtifactLocalProvider());
-    di.registerSingleton(PlatformLocalProvider());
-    di.registerSingleton(ProjectLocalProvider());
+    Hive.registerAdapter(PlatformTypeAdapter());
+    Hive.registerAdapter(ArtifactAdapter());
+    Hive.registerAdapter(PlatformAdapter());
+    Hive.registerAdapter(ProjectAdapter());
   }
 
   DependencyInjectionInitializer._();
