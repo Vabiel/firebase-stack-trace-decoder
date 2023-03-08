@@ -1,5 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
+import 'package:firebase_stacktrace_decoder/application/theme.dart';
 import 'package:firebase_stacktrace_decoder/dialogs/file_picker_dialog/file_picker_dialog.dart';
 import 'package:firebase_stacktrace_decoder/widgets/project_preview/project_preview.dart';
 import 'package:flutter/material.dart';
@@ -34,18 +35,19 @@ class _PreviewSelectorState extends State<PreviewSelector> {
     return _buildSelector(context, _preview);
   }
 
-  Widget _buildPicker() {
-    const borderColor = Color(0xff9b9b9b);
+  Widget _buildPicker(BuildContext context) {
+    const borderColor = AppTheme.borderColor;
+    final l = context.l;
     return SizedBox.square(
       dimension: _previewSize,
       child: DottedBorder(
         color: borderColor,
         strokeWidth: 3,
         dashPattern: const [5, 2.5],
-        child: const Center(
+        child: Center(
           child: Text(
-            'Preview',
-            style: TextStyle(color: borderColor),
+            l.previewSelectorTitle,
+            style: const TextStyle(color: borderColor),
           ),
         ),
       ),
@@ -88,7 +90,7 @@ class _PreviewSelectorState extends State<PreviewSelector> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        hasPreview ? _buildPreview(preview) : _buildPicker(),
+        hasPreview ? _buildPreview(preview) : _buildPicker(context),
         TextButton(
           onPressed: hasPreview ? _deletePreview : _changePreview,
           style: TextButton.styleFrom(
