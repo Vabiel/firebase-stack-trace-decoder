@@ -4,37 +4,25 @@ import 'package:path/path.dart';
 
 part 'artifact.g.dart';
 
-@HiveType(typeId: 0)
-class Artifact extends EquatableEntity {
-  @HiveField(0)
-  @override
-  final String uid;
+@HiveType(typeId: 3)
+class Artifact extends Entity {
+  // @HiveField(0)
+  // final String uid;
 
   @HiveField(1)
   final String filePath;
 
-  @HiveField(2)
-  @override
-  final DateTime createAt;
-
-  @HiveField(3)
-  @override
-  final DateTime updateAt;
-
-  @HiveField(4)
-  @override
-  final int position;
+  // @HiveField(2)
+  // final int position;
 
   Artifact({
-    required this.uid,
     required this.filePath,
-    required this.createAt,
-    required this.updateAt,
-    this.position = 1,
+    required super.uid,
+    super.position = 1,
   })  : assert(uid.isNotEmpty),
         assert(filePath.isNotEmpty);
 
-  String get fileName => basename(filePath);
+  String get filename => basename(filePath);
 
   @override
   List<Object?> get props => [
@@ -44,15 +32,11 @@ class Artifact extends EquatableEntity {
 
   Artifact copyWith({
     String? filePath,
-    DateTime? createAt,
-    DateTime? updateAt,
     int? position,
   }) {
     return Artifact(
       uid: uid,
       filePath: filePath ?? this.filePath,
-      createAt: createAt ?? this.createAt,
-      updateAt: updateAt ?? this.updateAt,
       position: position ?? this.position,
     );
   }

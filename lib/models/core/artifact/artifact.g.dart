@@ -8,7 +8,7 @@ part of 'artifact.dart';
 
 class ArtifactAdapter extends TypeAdapter<Artifact> {
   @override
-  final int typeId = 0;
+  final int typeId = 3;
 
   @override
   Artifact read(BinaryReader reader) {
@@ -19,25 +19,19 @@ class ArtifactAdapter extends TypeAdapter<Artifact> {
     return Artifact(
       uid: fields[0] as String,
       filePath: fields[1] as String,
-      createAt: fields[2] as DateTime,
-      updateAt: fields[3] as DateTime,
-      position: fields[4] as int,
+      position: fields[2] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Artifact obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
       ..write(obj.filePath)
       ..writeByte(2)
-      ..write(obj.createAt)
-      ..writeByte(3)
-      ..write(obj.updateAt)
-      ..writeByte(4)
       ..write(obj.position);
   }
 

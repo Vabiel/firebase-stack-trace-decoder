@@ -20,17 +20,16 @@ class ProjectAdapter extends TypeAdapter<Project> {
       uid: fields[0] as String,
       name: fields[1] as String,
       version: fields[2] as String,
-      createAt: fields[4] as DateTime,
-      updateAt: fields[5] as DateTime,
-      position: fields[6] as int,
+      position: fields[4] as int,
       platforms: (fields[3] as List).cast<Platform>(),
+      preview: fields[5] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Project obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -40,11 +39,9 @@ class ProjectAdapter extends TypeAdapter<Project> {
       ..writeByte(3)
       ..write(obj.platforms)
       ..writeByte(4)
-      ..write(obj.createAt)
+      ..write(obj.position)
       ..writeByte(5)
-      ..write(obj.updateAt)
-      ..writeByte(6)
-      ..write(obj.position);
+      ..write(obj.preview);
   }
 
   @override

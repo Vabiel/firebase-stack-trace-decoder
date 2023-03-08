@@ -1,13 +1,13 @@
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:hive/hive.dart';
+import 'package:list_ext/list_ext.dart';
 
 part 'project.g.dart';
 
 @HiveType(typeId: 0)
-class Project extends EquatableEntity {
-  @HiveField(0)
-  @override
-  final String uid;
+class Project extends Entity {
+  // @HiveField(0)
+  // final String uid;
 
   @HiveField(1)
   final String name;
@@ -18,32 +18,27 @@ class Project extends EquatableEntity {
   @HiveField(3)
   final List<Platform> platforms;
 
-  @HiveField(4)
-  @override
-  final DateTime createAt;
+  // @HiveField(4)
+  // final int position;
 
   @HiveField(5)
-  @override
-  final DateTime updateAt;
-
-  @HiveField(6)
-  @override
-  final int position;
+  final String? preview;
 
   Project({
-    required this.uid,
+    required super.uid,
     required this.name,
     required this.version,
-    required this.createAt,
-    required this.updateAt,
-    this.position = 1,
+    super.position = -1,
     this.platforms = const [],
+    this.preview,
   })  : assert(name.isNotEmpty),
         assert(version.isNotEmpty);
 
-  bool get isEmpty => platforms.isEmpty;
+  bool get hasPlatforms => platforms.countWhere((e) => e.isActive) > 0;
 
-  bool get isNotEmpty => platforms.isNotEmpty;
+  bool get hasAnyPlatforms => platforms.isNotEmpty;
+
+  int get activePlatformsCount => platforms.countWhere((e) => e.isActive);
 
   @override
   List<Object?> get props => [
@@ -51,25 +46,25 @@ class Project extends EquatableEntity {
         name,
         version,
         platforms,
+        position,
+        preview,
       ];
 
   Project copyWith({
-    bool? isRemoved,
     String? name,
     String? version,
+    String? preview,
     List<Platform>? platforms,
-    DateTime? createAt,
-    DateTime? updateAt,
     int? position,
+    bool nullablePreview = true,
   }) {
     return Project(
       uid: uid,
       name: name ?? this.name,
       version: version ?? this.version,
       platforms: platforms ?? this.platforms,
-      createAt: createAt ?? this.createAt,
-      updateAt: updateAt ?? this.updateAt,
       position: position ?? this.position,
+      preview: nullablePreview ? preview : preview ?? this.preview,
     );
   }
 }

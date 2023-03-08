@@ -3,11 +3,10 @@ import 'package:hive/hive.dart';
 
 part 'platform.g.dart';
 
-@HiveType(typeId: 0)
-class Platform extends EquatableEntity {
-  @HiveField(0)
-  @override
-  final String uid;
+@HiveType(typeId: 1)
+class Platform extends Entity {
+  // @HiveField(0)
+  // final String uid;
 
   @HiveField(1)
   final PlatformType type;
@@ -15,26 +14,23 @@ class Platform extends EquatableEntity {
   @HiveField(2)
   final List<Artifact> artifacts;
 
-  @HiveField(3)
-  @override
-  final DateTime createAt;
+  // @HiveField(3)
+  // final int position;
 
   @HiveField(4)
-  @override
-  final DateTime updateAt;
-
-  @HiveField(5)
-  @override
-  final int position;
+  final bool isActive;
 
   const Platform({
-    required this.uid,
     required this.type,
-    required this.artifacts,
-    required this.createAt,
-    required this.updateAt,
-    this.position = 1,
+    required super.uid,
+    super.position = -1,
+    this.artifacts = const [],
+    this.isActive = true,
   });
+
+  String get name => type.name;
+
+  bool get hasArtifacts => artifacts.isNotEmpty;
 
   @override
   List<Object?> get props => [
@@ -49,23 +45,30 @@ class Platform extends EquatableEntity {
     DateTime? createAt,
     DateTime? updateAt,
     int? position,
+    bool? isActive,
   }) {
     return Platform(
       uid: uid,
       type: type ?? this.type,
       artifacts: artifacts ?? this.artifacts,
-      createAt: createAt ?? this.createAt,
-      updateAt: updateAt ?? this.updateAt,
       position: position ?? this.position,
+      isActive: isActive ?? this.isActive,
     );
   }
 }
 
+@HiveType(typeId: 2)
 enum PlatformType {
+  @HiveField(0)
   android,
+  @HiveField(1)
   ios,
+  @HiveField(2)
   linux,
+  @HiveField(3)
   macos,
+  @HiveField(4)
   windows,
+  @HiveField(5)
   fuchsia,
 }
