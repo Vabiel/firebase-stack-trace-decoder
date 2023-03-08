@@ -11,8 +11,8 @@ class AppShown extends AppEvent {
   List<Object> get props => const [];
 }
 
-class AppLaunchScreenHidden extends AppEvent {
-  const AppLaunchScreenHidden();
+class AppLaunchScreenShown extends AppEvent {
+  const AppLaunchScreenShown();
 
   @override
   List<Object> get props => const [];

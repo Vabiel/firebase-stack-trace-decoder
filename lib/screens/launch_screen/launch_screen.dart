@@ -13,8 +13,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
   @override
   void initState() {
     super.initState();
-
-    context.read<AppBloc>().add(const AppLaunchScreenHidden());
+    context.read<AppBloc>().add(const AppLaunchScreenShown());
   }
 
   @override

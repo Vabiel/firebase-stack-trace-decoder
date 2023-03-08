@@ -3,7 +3,10 @@ import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
 import 'package:firebase_stacktrace_decoder/application/di_initializer.dart';
+import 'package:firebase_stacktrace_decoder/repositories/project_local_provider/project_local_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_stacktrace_decoder/application/extensions/bloc_extension/bloc_extension.dart';
+import 'package:get/get.dart';
 
 part 'app_event.dart';
 
@@ -11,25 +14,33 @@ part 'app_state.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc() : super(const AppInitial()) {
-    on<AppShown>(_onShown);
-    on<AppLaunchScreenHidden>(_onLaunchScreenHidden);
+    onBlocEvent(_eventToState);
+  }
+
+  Stream<AppState> _eventToState(AppEvent event) async* {
+    if (event is AppShown) {
+      yield* _onShown(event);
+    } else if (event is AppLaunchScreenShown) {
+      yield* _onLaunchScreenShown(event);
+    }
   }
 
   /// Состояние показа приложения.
-  Future<void> _onShown(AppShown event, Emitter<AppState> emit) async {
-    emit(const AppLoadInProgress());
+  Stream<AppState> _onShown(AppShown event) async* {
+    yield const AppLoadInProgress();
     if (!DependencyInjectionInitializer.isInitialized) {
       await DependencyInjectionInitializer.initialize();
     }
-    emit(const AppReady());
+    yield const AppReady();
     log('App ready');
-    emit(const AppReadySuccess());
+    yield const AppReadySuccess();
   }
 
-  void _onLaunchScreenHidden(
-      AppLaunchScreenHidden event, Emitter<AppState> emit) {
+  Stream<AppState> _onLaunchScreenShown(AppLaunchScreenShown event) async* {
+    final provider = Get.find<ProjectLocalProvider>();
+    await provider.initialize();
     log('App started');
-    emit(const AppLoadSuccess());
+    yield const AppLoadSuccess();
   }
 }
 
