@@ -19,6 +19,12 @@ class _LaunchScreenState extends State<LaunchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(color: Colors.blue);
+    return Material(
+      child: Center(
+          child: Image.asset(
+        'assets/dash.png',
+        fit: BoxFit.contain,
+      )),
+    );
   }
 }
