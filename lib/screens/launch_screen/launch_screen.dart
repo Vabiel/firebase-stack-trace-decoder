@@ -1,3 +1,4 @@
+import 'package:firebase_stacktrace_decoder/application/extensions/bloc_extension/bloc_extension.dart';
 import 'package:firebase_stacktrace_decoder/blocs/app/app_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +14,10 @@ class _LaunchScreenState extends State<LaunchScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<AppBloc>().add(const AppLaunchScreenShown());
+    final bloc = context.read<AppBloc>();
+    bloc.waitForState<AppReadySuccess>().then((value) {
+      bloc.add(const AppLaunchScreenShown());
+    });
   }
 
   @override

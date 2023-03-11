@@ -37,8 +37,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Stream<AppState> _onLaunchScreenShown(AppLaunchScreenShown event) async* {
-    final provider = Get.find<ProjectLocalProvider>();
-    await provider.initialize();
     log('App started');
     yield const AppLoadSuccess();
   }

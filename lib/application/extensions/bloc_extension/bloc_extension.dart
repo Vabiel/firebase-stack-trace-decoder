@@ -10,4 +10,18 @@ extension BlocExtension<E, S> on Bloc<E, S> {
             emit.forEach(mapEventToState(event), onData: (S state) => state),
         transformer: sequential());
   }
+
+  Future<T?> waitForState<T extends S>() async {
+    assert(T != Object && T != S, 'You should provide state type explicitly');
+
+    if (state is T) return state as T;
+
+    await for (final item in stream) {
+      if (item is T) return item;
+
+      if (state is T) return state as T;
+    }
+
+    return null;
+  }
 }

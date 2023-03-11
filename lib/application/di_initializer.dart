@@ -25,6 +25,7 @@ class DependencyInjectionInitializer {
 
     await _registerCommon();
     await _registerProviders();
+    await _initializeProviders();
   }
 
   static Future<void> _registerCommon() async {
@@ -39,12 +40,17 @@ class DependencyInjectionInitializer {
     Get.put(ArtifactLocalProvider());
     Get.put(PlatformLocalProvider());
     Get.put(ProjectLocalProvider());
-    final db = Get.find<LocalStore>();
-    await db.initialize();
     Hive.registerAdapter(PlatformTypeAdapter());
     Hive.registerAdapter(ArtifactAdapter());
     Hive.registerAdapter(PlatformAdapter());
     Hive.registerAdapter(ProjectAdapter());
+  }
+
+  static Future<void> _initializeProviders() async {
+    final db = Get.find<LocalStore>();
+    await db.initialize();
+    final projectLocalProvider = Get.find<ProjectLocalProvider>();
+    await projectLocalProvider.initialize();
   }
 
   DependencyInjectionInitializer._();
