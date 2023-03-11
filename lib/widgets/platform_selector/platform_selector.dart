@@ -1,6 +1,6 @@
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
-import 'package:firebase_stacktrace_decoder/widgets/platform_selector/checked_popup_menu.dart';
+import 'package:firebase_stacktrace_decoder/widgets/platform_selector/select_popup_menu.dart';
 import 'package:flutter/material.dart';
 
 class PlatformSelector extends StatelessWidget {
@@ -16,7 +16,7 @@ class PlatformSelector extends StatelessWidget {
     final l = context.l;
     final selectedPlatforms =
         platforms.where((p) => p.isActive).map((e) => e.type).toList();
-    return CheckboxPopupButton<PlatformType>(
+    return SelectPopupButton.checkBox<PlatformType>(
       items: PlatformType.values,
       selectedItems: selectedPlatforms,
       onChange: onChange,
