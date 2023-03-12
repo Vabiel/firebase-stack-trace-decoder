@@ -30,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
   final _scrollController = ScrollController();
   final _selectProjectController = ScrollController();
   late final MainScreenBloc _mainScreenBloc =
-      MainScreenBloc(Get.find(), Get.find())..shown();
+      MainScreenBloc(Get.find(), Get.find(), Get.find())..shown();
 
   @override
   void dispose() {
@@ -166,7 +166,8 @@ class _MainScreenState extends State<MainScreen> {
             keepAlive: true,
             content: PlatformTabData(
               platform: platform,
-              onDragDone: _mainScreenBloc.decodeStacktrace,
+              onDragDone: _mainScreenBloc.decodeDragging,
+              onDecodeData: _mainScreenBloc.decodeManual,
             ),
           ),
         );

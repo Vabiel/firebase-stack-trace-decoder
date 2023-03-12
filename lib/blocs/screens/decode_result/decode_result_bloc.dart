@@ -72,7 +72,7 @@ class DecodeResultBloc extends Bloc<DecodeResultEvent, DecodeResultState> {
 
   Future<bool> _saveFile(DecodeResult data, String outputsPath) async {
     final filename = pathProvider.getResultFilename(data.filename);
-    File file = File(path.join(outputsPath, filename));
+    final file = File(path.join(outputsPath, filename));
     try {
       await file.writeAsString(data.result);
       return true;

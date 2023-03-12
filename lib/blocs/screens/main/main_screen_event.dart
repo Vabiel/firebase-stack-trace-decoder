@@ -36,3 +36,13 @@ class MainScreenStacktraceDragAndDropped extends MainScreenEvent {
   @override
   List<Object?> get props => [details, artifact];
 }
+
+class MainScreenStacktraceManualDecoded extends MainScreenEvent {
+  final Artifact artifact;
+  final List<String> stackTraceList;
+
+  const MainScreenStacktraceManualDecoded(this.artifact, this.stackTraceList);
+
+  @override
+  List<Object?> get props => [artifact, stackTraceList];
+}

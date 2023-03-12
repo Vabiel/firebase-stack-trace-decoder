@@ -185,6 +185,15 @@ class AppLocalizations {
   String get decodeResultFieldHintText =>
       Intl.message('Paste your stack trace here',
           name: 'decodeResultFieldHintText');
+
+  String get selectDecodeModeTitle =>
+      Intl.message('Select decode mode', name: 'selectDecodeModeTitle');
+
+  String get manualDecodeModeTitle =>
+      Intl.message('Manual', name: 'manualDecodeModeTitle');
+
+  String get draggingDecodeModeTitle =>
+      Intl.message('Dragging', name: 'draggingDecodeModeTitle');
 }
 
 extension AppLocalizationsExtension on BuildContext {

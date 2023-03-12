@@ -1,22 +1,29 @@
+import 'dart:io';
+
+import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_stacktrace_decoder/application/extensions/bloc_extension/bloc_extension.dart';
+import 'package:firebase_stacktrace_decoder/application/path_provider.dart';
 import 'package:firebase_stacktrace_decoder/cmd/exception/run_exception.dart';
 import 'package:firebase_stacktrace_decoder/cmd/flutter_cmd.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/repositories/repositories.dart';
 import 'package:firebase_stacktrace_decoder/widgets/drop_target_box/drop_target_box.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path/path.dart' as path;
 
 part 'main_screen_event.dart';
 
 part 'main_screen_state.dart';
 
 class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
-  late final FlutterCmd cmd;
-  late final ProjectLocalProvider projectLocalProvider;
+  final FlutterCmd cmd;
+  final ProjectLocalProvider projectLocalProvider;
+  final ApplicationPathProvider pathProvider;
 
-  MainScreenBloc(this.cmd, this.projectLocalProvider)
+  MainScreenBloc(this.cmd, this.projectLocalProvider, this.pathProvider)
       : super(const MainScreenInitial()) {
     onBlocEvent(_eventToState);
   }
@@ -30,7 +37,36 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       yield* _onProjectRemoved(event);
     } else if (event is MainScreenStacktraceDragAndDropped) {
       yield* _onStacktraceDragAndDropped(event);
+    } else if (event is MainScreenStacktraceManualDecoded) {
+      yield* _onStacktraceManualDecoded(event);
     }
+  }
+
+  Stream<MainScreenState> _onStacktraceManualDecoded(
+      MainScreenStacktraceManualDecoded event) async* {
+    final stackTraceList = event.stackTraceList;
+    if (stackTraceList.isNotEmpty) {
+      final artifact = event.artifact;
+      final tempDir = await pathProvider.getTempDir();
+      final decodeList = <DecodeResult>[];
+      yield const MainScreenDecodeInProgress();
+      for (final stackTrace in stackTraceList) {
+        if (stackTrace.isNotEmpty) {
+          final tempFileName = pathProvider.getTempFileName();
+          final fullPath = path.join(tempDir.path, tempFileName);
+          final file = File(fullPath);
+          final isSaveSuccess = await _saveTempFile(file, stackTrace);
+          if (isSaveSuccess) {
+            final data =
+                await _decodeStackTrace(artifact, FileData.fromFile(file));
+            decodeList.add(data);
+            await file.delete();
+          }
+        }
+      }
+      yield MainScreenDecodeSuccess(decodeList);
+    }
+    yield* _toLoadSuccess(event);
   }
 
   Stream<MainScreenState> _onStacktraceDragAndDropped(
@@ -41,29 +77,9 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       final decodeList = <DecodeResult>[];
       final artifact = event.artifact;
       for (final stacktrace in data.files) {
-        try {
-          final res =
-              await cmd.symbolizeOrFail(stacktrace.path, artifact.filePath);
-          final result = DecodeResult(
-            filename: stacktrace.name,
-            result: res.stdout.toString(),
-          );
-          decodeList.add(result);
-        } catch (e) {
-          if (e is RunException) {
-            final result = DecodeResult(
-              filename: stacktrace.name,
-              result: e.message ?? 'Unknown error',
-            );
-            decodeList.add(result);
-          } else {
-            final result = DecodeResult(
-              filename: stacktrace.name,
-              result: e.toString(),
-            );
-            decodeList.add(result);
-          }
-        }
+        final data =
+            await _decodeStackTrace(artifact, FileData.fromXFile(stacktrace));
+        decodeList.add(data);
       }
       yield MainScreenDecodeSuccess(decodeList);
     }
@@ -82,6 +98,43 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     final list = await projectLocalProvider.getAll();
     yield MainScreenLoadSuccess(list);
   }
+
+  Future<DecodeResult> _decodeStackTrace(
+      Artifact artifact, FileData fileData) async {
+    try {
+      final res =
+          await cmd.symbolizeOrFail(fileData.filePath, artifact.filePath);
+      final result = DecodeResult(
+        filename: fileData.name,
+        result: res.stdout.toString(),
+      );
+      return result;
+    } catch (e) {
+      if (e is RunException) {
+        final result = DecodeResult(
+          filename: fileData.name,
+          result: e.message ?? 'Unknown error',
+        );
+        return result;
+      } else {
+        final result = DecodeResult(
+          filename: fileData.name,
+          result: e.toString(),
+        );
+        return result;
+      }
+    }
+  }
+
+  Future<bool> _saveTempFile(File file, String source) async {
+    try {
+      await file.writeAsString(source);
+      return true;
+    } catch (e) {
+      debugPrint('error save file:\n${e.toString()}');
+      return false;
+    }
+  }
 }
 
 extension MainScreenBlocExtension on MainScreenBloc {
@@ -92,6 +145,25 @@ extension MainScreenBlocExtension on MainScreenBloc {
   void removeProject(String projectUid) =>
       add(MainScreenProjectRemoved(projectUid));
 
-  void decodeStacktrace(DropDoneDetails details, Artifact artifact) =>
+  void decodeDragging(DropDoneDetails details, Artifact artifact) =>
       add(MainScreenStacktraceDragAndDropped(details, artifact));
+
+  void decodeManual(Artifact artifact, List<String> stackTraceList) =>
+      add(MainScreenStacktraceManualDecoded(artifact, stackTraceList));
+}
+
+class FileData {
+  final XFile? xFile;
+  final File? file;
+
+  FileData({this.xFile, this.file})
+      : assert(xFile == null && file != null || xFile != null && file == null);
+
+  String get name => xFile?.name ?? path.basename(file!.path);
+
+  String get filePath => xFile?.path ?? file!.path;
+
+  factory FileData.fromXFile(XFile xFile) => FileData(xFile: xFile);
+
+  factory FileData.fromFile(File file) => FileData(file: file);
 }

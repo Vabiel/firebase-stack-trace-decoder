@@ -15,6 +15,12 @@ class ApplicationPathProvider {
     return result;
   }
 
+  Future<Directory> getTempDir() async {
+    final mainDir = await getDatabaseDir();
+    final result = _getSubDir(mainDir, 'temp');
+    return result;
+  }
+
   Future<Directory> _getApplicationDirectory([String? subDirName]) async {
     var result = await provider.getApplicationDocumentsDirectory();
     if (subDirName != null) result = await _getSubDir(result, subDirName);
@@ -43,5 +49,10 @@ class ApplicationPathProvider {
     final decodeName = path.basenameWithoutExtension(decodeFilename);
     final name = 'result_${decodeName}_${now.millisecondsSinceEpoch}.txt';
     return name;
+  }
+
+  String getTempFileName() {
+    final now = DateTime.now();
+    return 'temp_${now.millisecondsSinceEpoch}.txt';
   }
 }

@@ -3,10 +3,8 @@ import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
 import 'package:firebase_stacktrace_decoder/application/di_initializer.dart';
-import 'package:firebase_stacktrace_decoder/repositories/project_local_provider/project_local_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_stacktrace_decoder/application/extensions/bloc_extension/bloc_extension.dart';
-import 'package:get/get.dart';
 
 part 'app_event.dart';
 

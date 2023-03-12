@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:firebase_stacktrace_decoder/application/extensions/bloc_extension/bloc_extension.dart';
+import 'package:firebase_stacktrace_decoder/application/uid_utils.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/repositories/repositories.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uuid/uuid.dart';
 
 part 'edit_project_event.dart';
 
@@ -44,11 +44,8 @@ class EditProjectBloc extends Bloc<EditProjectEvent, EditProjectState> {
         preview: preview,
       );
     } else {
-      const uuid = Uuid();
-      final uid = uuid.v4();
-
       updatedProject = Project(
-        uid: uid,
+        uid: UidUtils.v4,
         name: name,
         version: version,
         platforms: platforms,
