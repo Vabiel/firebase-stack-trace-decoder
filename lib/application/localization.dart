@@ -172,6 +172,19 @@ class AppLocalizations {
 
   String get previewSelectorTitle =>
       Intl.message('Preview', name: 'previewSelectorTitle');
+
+  String get manualDecodePageAddTitle =>
+      Intl.message('Add stack trace', name: 'manualDecodePageAddTitle');
+
+  String get manualDecodeStackTraceTitle =>
+      Intl.message('Decode stack trace', name: 'manualDecodeStackTraceTitle');
+
+  String get manualDecodeAllTitle =>
+      Intl.message('Decode all', name: 'manualDecodeAllTitle');
+
+  String get decodeResultFieldHintText =>
+      Intl.message('Paste your stack trace here',
+          name: 'decodeResultFieldHintText');
 }
 
 extension AppLocalizationsExtension on BuildContext {
