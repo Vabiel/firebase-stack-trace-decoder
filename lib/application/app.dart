@@ -75,7 +75,6 @@ class FirebaseStacktraceDecoder extends StatelessWidget {
   }) {
     return GlobalLoaderOverlay(
       overlayColor: Colors.black,
-      useDefaultLoading: true,
       child: MaterialApp(
         onGenerateRoute: onGenerateRoute,
         navigatorKey: navigatorKey,

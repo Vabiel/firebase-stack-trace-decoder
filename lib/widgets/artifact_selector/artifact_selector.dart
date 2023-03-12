@@ -4,11 +4,13 @@ import 'package:flutter/cupertino.dart';
 class ArtifactSelector extends StatefulWidget {
   final List<Artifact> artifacts;
   final ValueChanged<int> onSelect;
+  final Artifact? selected;
 
   const ArtifactSelector({
     Key? key,
     required this.artifacts,
     required this.onSelect,
+    required this.selected,
   }) : super(key: key);
 
   @override
@@ -16,16 +18,7 @@ class ArtifactSelector extends StatefulWidget {
 }
 
 class _ArtifactSelectorState extends State<ArtifactSelector> {
-  Artifact? _selected;
-
-  @override
-  void initState() {
-    super.initState();
-    final artifacts = widget.artifacts;
-    if (artifacts.isNotEmpty) {
-      _selected = artifacts.first;
-    }
-  }
+  late Artifact? _selected = widget.selected;
 
   @override
   Widget build(BuildContext context) {
