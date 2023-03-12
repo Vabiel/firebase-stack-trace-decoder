@@ -1,8 +1,8 @@
 name: firebase_stacktrace_decoder
 
-version: 0.1.0
+version: 0.1.1
 
-description: A new Flutter project.
+description: firebase stack trace decoder
 
 environment:
   sdk: '>=2.19.0 <3.0.0'
