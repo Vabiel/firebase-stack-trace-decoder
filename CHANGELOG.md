@@ -2,7 +2,7 @@
 
 ### Added
 
-- Support manual decoding (android only)
+- Support manual decoding
 
 ## v0.1.0 - 2023-03-08
 
