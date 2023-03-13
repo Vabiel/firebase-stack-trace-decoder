@@ -34,8 +34,6 @@ class _PlatformTabDataState extends State<PlatformTabData>
   final _draggablePageController = PageController();
   final _manualPageController = PageController();
 
-  Artifact? _selected;
-
   @override
   bool get wantKeepAlive => true;
 
@@ -59,76 +57,89 @@ class _PlatformTabDataState extends State<PlatformTabData>
 
   Widget _buildBody(BuildContext context, Platform platform) {
     final artifacts = platform.artifacts;
-    return Column(
+    return Stack(
       children: [
-        Row(
+        PageView(
+          controller: _decodeModePageController,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
-            if (artifacts.length > 1)
-              Expanded(
-                child: ArtifactSelector(
-                  artifacts: artifacts,
-                  selected: _selected ?? artifacts.first,
-                  onSelect: _onSelectArtifact,
-                ),
-              )
-            else
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Text(
-                    artifacts.first.filename,
-                    maxLines: 1,
-                    overflow: TextOverflow.fade,
-                  ),
-                ),
-              ),
-            _buildModeSwitcher(context),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: PageView(
-            controller: _decodeModePageController,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              ManualDecodePage(
+            _buildPage(
+              context,
+              platform,
+              child: ManualDecodePage(
                 manualPageController: _manualPageController,
                 platformType: platform.type,
                 artifacts: artifacts,
                 onDecodeData: widget.onDecodeData,
               ),
-              DraggableDecodePage(
+            ),
+            _buildPage(
+              context,
+              platform,
+              child: DraggableDecodePage(
                 draggablePageController: _draggablePageController,
                 artifacts: artifacts,
                 onDragDone: widget.onDragDone,
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: _buildModeSwitcher(context),
         ),
       ],
     );
   }
 
-  void _updateSelected(List<Artifact> artifacts) {
-    if (artifacts.isNotEmpty) {
-      final page = _decodeMode == DecodeMode.manual
-          ? _manualPageController.page?.floor()
-          : _draggablePageController.page?.floor();
-      if (page != null && artifacts.length > page) {
-        _selected = artifacts[page];
-      }
-    }
+  Widget _buildPage(BuildContext context, Platform platform,
+      {required Widget child}) {
+    final artifacts = platform.artifacts;
+    return Column(
+      children: [
+        _buildSelector(artifacts),
+        const SizedBox(height: 8),
+        Expanded(child: child),
+      ],
+    );
+  }
+
+  Widget _buildSelector(List<Artifact> artifacts) {
+    return Row(
+      children: [
+        if (artifacts.length > 1)
+          Expanded(
+            child: _buildArtifactSelector(artifacts),
+          )
+        else
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Text(
+                artifacts.first.filename,
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+              ),
+            ),
+          ),
+        const SizedBox.square(dimension: 40),
+      ],
+    );
+  }
+
+  Widget _buildArtifactSelector(List<Artifact> artifacts) {
+    return ArtifactSelector(
+      artifacts: artifacts,
+      selected: artifacts.first,
+      onSelect: _onSelectArtifact,
+    );
   }
 
   void _onSelectArtifact(int page) {
-    // TODO: fix it
-
-    setState(() {
-      _decodeMode == DecodeMode.manual
-          ? _manualPageController.jumpToPage(page)
-          : _draggablePageController.jumpToPage(page);
-      _updateSelected(widget.platform.artifacts);
-    });
+    _decodeMode == DecodeMode.manual
+        ? _manualPageController.jumpToPage(page)
+        : _draggablePageController.jumpToPage(page);
   }
 
   Widget _buildModeSwitcher(BuildContext context) {
