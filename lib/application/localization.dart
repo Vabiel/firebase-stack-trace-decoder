@@ -194,6 +194,26 @@ class AppLocalizations {
 
   String get draggingDecodeModeTitle =>
       Intl.message('Dragging', name: 'draggingDecodeModeTitle');
+
+  String get decodeDialogErrorTitle =>
+      Intl.message('Decoding error', name: 'decodeDialogErrorTitle');
+
+  String get decodeDialogWarningTitle =>
+      Intl.message('Warning', name: 'decodeDialogWarningTitle');
+
+  String get decodeDialogEmptyTitle =>
+      Intl.message('Empty stack trace', name: 'decodeDialogEmptyTitl');
+
+  String get decodeDialogInvalidTitle =>
+      Intl.message('Invalid stack trace', name: 'decodeDialogInvalidTitle');
+
+  String get decodeDialogConfirmText => Intl.message(
+      'One or more stack traces are invalid or empty.\nDo you want to continue decoding?',
+      name: 'decodeDialogConfirmText');
+
+  String get decodeDialogEmptyListTitle =>
+      Intl.message('Enter valid stack trace',
+          name: 'decodeDialogEmptyListTitle');
 }
 
 extension AppLocalizationsExtension on BuildContext {

@@ -1,6 +1,7 @@
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
 import 'package:firebase_stacktrace_decoder/application/theme.dart';
 import 'package:firebase_stacktrace_decoder/application/uid_utils.dart';
+import 'package:firebase_stacktrace_decoder/dialogs/app_dialog/app_dialog.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/widgets/decode_result_field/decode_result_field.dart';
 import 'package:flutter/material.dart';
@@ -181,18 +182,55 @@ class _TextTabState extends State<_TextTab>
       final stackTrace = _prepareText(text);
       if (stackTrace.isNotEmpty) {
         widget.onDecodeData(widget.artifact, [stackTrace]);
+      } else {
+        _showSingleDecodeDialog(context, text);
       }
     }
   }
 
-  void _onDecodeAllPressed() {
-    final stackTraceList = [];
+  void _onDecodeAllPressed() async {
+    final stackTraceList = <String>[];
     _controllers.forEach((uid, controller) {
       final stackTrace = _prepareText(controller.text);
       if (stackTrace.isNotEmpty) {
         stackTraceList.add(stackTrace);
       }
     });
+    if (stackTraceList.isNotEmpty) {
+      if (stackTraceList.length == _controllers.length) {
+        widget.onDecodeData(widget.artifact, stackTraceList);
+      } else {
+        bool isConfirm = await _showConfirmDecodeDialog(context);
+        if (isConfirm) widget.onDecodeData(widget.artifact, stackTraceList);
+      }
+    } else {
+      _showEmptyListAlert(context);
+    }
+  }
+
+  Future<void> _showSingleDecodeDialog(BuildContext context, String text) {
+    final l = context.l;
+    return AppDialog.showAlert(
+      context,
+      title: l.decodeDialogErrorTitle,
+      content:
+          text.isEmpty ? l.decodeDialogEmptyTitle : l.decodeDialogInvalidTitle,
+    );
+  }
+
+  Future<bool> _showConfirmDecodeDialog(BuildContext context) {
+    final l = context.l;
+    return AppDialog.showConfirm(context,
+        title: l.decodeDialogWarningTitle, content: l.decodeDialogConfirmText);
+  }
+
+  Future<void> _showEmptyListAlert(BuildContext context) {
+    final l = context.l;
+    return AppDialog.showAlert(
+      context,
+      title: l.decodeDialogErrorTitle,
+      content: l.decodeDialogEmptyListTitle,
+    );
   }
 
   void _onTabClose(int index, TabData tabData) {
@@ -222,7 +260,9 @@ class _TextTabState extends State<_TextTab>
         ],
         content: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: DecodeResultField(controller: _controllers[uid]!),
+          child: DecodeResultField(
+            controller: _controllers[uid]!,
+          ),
         ),
       ),
     );

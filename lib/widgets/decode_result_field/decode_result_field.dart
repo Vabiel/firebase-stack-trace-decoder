@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class DecodeResultField extends StatelessWidget {
   final TextEditingController controller;
   final List<CustomMenuAction> contextMenuActions;
+  final String? errorText;
 
   const DecodeResultField({
     Key? key,
     required this.controller,
     this.contextMenuActions = const [],
+    this.errorText,
   }) : super(key: key);
 
   @override
@@ -44,6 +46,7 @@ class DecodeResultField extends StatelessWidget {
         hintText: l.decodeResultFieldHintText,
         contentPadding: const EdgeInsets.all(16.0),
         border: const OutlineInputBorder(),
+        errorText: errorText,
       ),
     );
   }
