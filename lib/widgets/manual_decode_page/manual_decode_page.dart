@@ -10,12 +10,14 @@ typedef OnDecodeData = void Function(Artifact, List<String>);
 
 class ManualDecodePage extends StatefulWidget {
   final PageController manualPageController;
+  final PlatformType platformType;
   final List<Artifact> artifacts;
   final OnDecodeData onDecodeData;
 
   const ManualDecodePage({
     Key? key,
     required this.manualPageController,
+    required this.platformType,
     required this.artifacts,
     required this.onDecodeData,
   }) : super(key: key);
@@ -51,6 +53,7 @@ class _ManualDecodePageState extends State<ManualDecodePage>
             artifact: artifact,
             controller: _createController(),
             onDecodeData: widget.onDecodeData,
+            platformType: widget.platformType,
           ),
         // DecodeResult(controller: TextEditingController(text: artifact.uid)),
       ],
@@ -66,12 +69,14 @@ class _ManualDecodePageState extends State<ManualDecodePage>
 
 class _TextTab extends StatefulWidget {
   final Artifact artifact;
+  final PlatformType platformType;
   final TabbedViewController controller;
   final OnDecodeData onDecodeData;
 
   const _TextTab({
     Key? key,
     required this.artifact,
+    required this.platformType,
     required this.controller,
     required this.onDecodeData,
   }) : super(key: key);
@@ -84,8 +89,15 @@ class _TextTabState extends State<_TextTab>
     with AutomaticKeepAliveClientMixin<_TextTab> {
   static const _emptyStr = '';
 
-  static const _pattern = '#[0-9][0-9] abs 0 virt';
-  static final _checkLineRegExp = RegExp(_pattern, caseSensitive: false);
+  static const _androidPattern =
+      r'#\d{2} abs 0 virt [0-9a-z]{16} _kDartIsolateSnapshotInstructions(\+)\dx[0-9a-z]{5,6}';
+
+  static const _iOSPattern =
+      r'#\d{2} abs 0 _kDartIsolateSnapshotInstructions(\+)\dx[0-9a-z]{5,6}';
+  static final _androidPlatformRegExp =
+      RegExp(_androidPattern, caseSensitive: false);
+
+  static final _iOSPlatformRegExp = RegExp(_iOSPattern, caseSensitive: false);
   late final _controller = widget.controller;
 
   final Map<String, TextEditingController> _controllers = {};
@@ -132,16 +144,31 @@ class _TextTabState extends State<_TextTab>
 
   String _prepareText(String text) {
     const space = '    ';
+    final platformType = widget.platformType;
     if (text.isNotEmpty) {
       final buffer = StringBuffer();
-      final lines = text.split('\n');
-      for (final line in lines) {
-        final trimmedLine = line.trim();
-        final isValidLine = _checkLineRegExp.hasMatch(trimmedLine);
-        if (isValidLine) {
-          buffer.writeln('$space$trimmedLine');
-        }
+      RegExp regExp;
+
+      switch (platformType) {
+        case PlatformType.ios:
+          regExp = _iOSPlatformRegExp;
+          break;
+        case PlatformType.android:
+        // TODO: support it
+        case PlatformType.linux:
+        case PlatformType.macos:
+        case PlatformType.windows:
+        case PlatformType.fuchsia:
+          regExp = _androidPlatformRegExp;
       }
+
+      final matches = regExp.allMatches(text);
+
+      for (var match in matches) {
+        final line = match.group(0);
+        buffer.writeln('$space$line');
+      }
+
       return buffer.isNotEmpty ? buffer.toString() : _emptyStr;
     }
     return _emptyStr;

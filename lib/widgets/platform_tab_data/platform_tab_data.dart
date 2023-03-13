@@ -93,6 +93,7 @@ class _PlatformTabDataState extends State<PlatformTabData>
             children: [
               ManualDecodePage(
                 manualPageController: _manualPageController,
+                platformType: platform.type,
                 artifacts: artifacts,
                 onDecodeData: widget.onDecodeData,
               ),
