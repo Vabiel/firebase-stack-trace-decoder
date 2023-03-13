@@ -138,7 +138,7 @@ class _ProjectListItem extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _buildText(
-                                project.name,
+                                '${project.name} (${project.version})',
                                 style: nameStyle,
                               ),
                               Text(
