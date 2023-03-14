@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:firebase_stacktrace_decoder/application/extensions/bloc_extension/bloc_extension.dart';
 import 'package:firebase_stacktrace_decoder/application/path_provider.dart';
 import 'package:firebase_stacktrace_decoder/widgets/drop_target_box/drop_target_box.dart';
+import 'package:firebase_stacktrace_decoder/widgets/platform_tab_data/platform_tab_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as path;
@@ -71,7 +72,11 @@ class DecodeResultBloc extends Bloc<DecodeResultEvent, DecodeResultState> {
   }
 
   Future<bool> _saveFile(DecodeResult data, String outputsPath) async {
-    final filename = pathProvider.getResultFilename(data.filename);
+    final shortFilename = data.mode.isManualMode;
+    final filename = pathProvider.getResultFilename(
+      data.filename,
+      shortFilename: shortFilename,
+    );
     final file = File(path.join(outputsPath, filename));
     try {
       await file.writeAsString(data.result);

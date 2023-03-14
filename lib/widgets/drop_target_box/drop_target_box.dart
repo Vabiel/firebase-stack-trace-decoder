@@ -2,6 +2,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
 import 'package:firebase_stacktrace_decoder/application/theme.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
+import 'package:firebase_stacktrace_decoder/widgets/platform_tab_data/platform_tab_data.dart';
 import 'package:flutter/material.dart';
 
 typedef OnDragDone = void Function(DropDoneDetails, Artifact);
@@ -62,9 +63,11 @@ class _DropTargetBoxState extends State<DropTargetBox> {
 class DecodeResult {
   final String filename;
   final String result;
+  final DecodeMode mode;
 
   const DecodeResult({
     required this.filename,
     required this.result,
+    required this.mode,
   });
 }

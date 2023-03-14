@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart' as provider;
 import 'package:path/path.dart' as path;
 
@@ -44,15 +45,21 @@ class ApplicationPathProvider {
     return result;
   }
 
-  String getResultFilename(String decodeFilename) {
+  String getResultFilename(String decodeFilename,
+      {bool shortFilename = false}) {
+    const extension = '.txt';
     final now = DateTime.now();
+    final time = now.millisecondsSinceEpoch;
     final decodeName = path.basenameWithoutExtension(decodeFilename);
-    final name = 'result_${decodeName}_${now.millisecondsSinceEpoch}.txt';
+    final basePart = 'result_$decodeName';
+    final name =
+        shortFilename ? '$basePart$extension' : '${basePart}_$time$extension';
     return name;
   }
 
   String getTempFileName() {
     final now = DateTime.now();
-    return 'temp_${now.millisecondsSinceEpoch}.txt';
+    final date = DateFormat('MM_dd_yyyy').format(now);
+    return '${date}_${now.millisecondsSinceEpoch}.txt';
   }
 }

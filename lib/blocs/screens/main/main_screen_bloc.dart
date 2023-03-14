@@ -10,6 +10,7 @@ import 'package:firebase_stacktrace_decoder/cmd/flutter_cmd.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/repositories/repositories.dart';
 import 'package:firebase_stacktrace_decoder/widgets/drop_target_box/drop_target_box.dart';
+import 'package:firebase_stacktrace_decoder/widgets/platform_tab_data/platform_tab_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as path;
@@ -101,11 +102,13 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
 
   Future<DecodeResult> _decodeStackTrace(
       Artifact artifact, FileData fileData) async {
+    final mode = fileData.mode;
     try {
       final res =
           await cmd.symbolizeOrFail(fileData.filePath, artifact.filePath);
       final result = DecodeResult(
         filename: fileData.name,
+        mode: mode,
         result: res.stdout.toString(),
       );
       return result;
@@ -113,12 +116,14 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       if (e is RunException) {
         final result = DecodeResult(
           filename: fileData.name,
+          mode: mode,
           result: e.message ?? 'Unknown error',
         );
         return result;
       } else {
         final result = DecodeResult(
           filename: fileData.name,
+          mode: mode,
           result: e.toString(),
         );
         return result;
@@ -162,6 +167,9 @@ class FileData {
   String get name => xFile?.name ?? path.basename(file!.path);
 
   String get filePath => xFile?.path ?? file!.path;
+
+  DecodeMode get mode =>
+      xFile == null ? DecodeMode.manual : DecodeMode.dragging;
 
   factory FileData.fromXFile(XFile xFile) => FileData(xFile: xFile);
 
