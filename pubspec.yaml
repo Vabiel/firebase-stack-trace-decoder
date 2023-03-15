@@ -28,10 +28,8 @@ dependencies:
   multi_split_view: ^2.4.0
   path: ^1.8.2
   path_provider: ^2.0.11
-  pluto_menu_bar: ^3.0.1
   string_ext: ^0.2.0
   tabbed_view: ^1.16.0+1
-  toggle_switch: ^2.0.1
   uuid: ^3.0.7
   url_launcher: ^6.1.10
   flutter: 
