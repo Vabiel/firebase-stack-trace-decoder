@@ -5,16 +5,18 @@ import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/widgets/platform_tab_data/platform_tab_data.dart';
 import 'package:flutter/material.dart';
 
-typedef OnDragDone = void Function(DropDoneDetails, Artifact);
+typedef OnDragDone = void Function(DropDoneDetails, Artifact, PlatformType);
 
 class DropTargetBox extends StatefulWidget {
   final Artifact artifact;
+  final PlatformType platformType;
   final OnDragDone onDragDone;
 
   const DropTargetBox({
     super.key,
     required this.artifact,
     required this.onDragDone,
+    required this.platformType,
   });
 
   @override
@@ -33,7 +35,11 @@ class _DropTargetBoxState extends State<DropTargetBox> {
     return DropTarget(
       onDragEntered: _onDragEntered,
       onDragExited: _onDragExited,
-      onDragDone: (details) => widget.onDragDone(details, widget.artifact),
+      onDragDone: (details) => widget.onDragDone(
+        details,
+        widget.artifact,
+        widget.platformType,
+      ),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,

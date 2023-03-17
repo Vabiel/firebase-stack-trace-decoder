@@ -30,11 +30,16 @@ class MainScreenProjectRemoved extends MainScreenEvent {
 class MainScreenStacktraceDragAndDropped extends MainScreenEvent {
   final DropDoneDetails details;
   final Artifact artifact;
+  final PlatformType platformType;
 
-  const MainScreenStacktraceDragAndDropped(this.details, this.artifact);
+  const MainScreenStacktraceDragAndDropped(
+    this.details,
+    this.artifact,
+    this.platformType,
+  );
 
   @override
-  List<Object?> get props => [details, artifact];
+  List<Object?> get props => [details, artifact, platformType];
 }
 
 class MainScreenStacktraceManualDecoded extends MainScreenEvent {

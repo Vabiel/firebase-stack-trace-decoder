@@ -6,12 +6,14 @@ class DraggableDecodePage extends StatelessWidget {
   final PageController draggablePageController;
   final OnDragDone onDragDone;
   final List<Artifact> artifacts;
+  final PlatformType platformType;
 
   const DraggableDecodePage({
     Key? key,
     required this.draggablePageController,
     required this.onDragDone,
     required this.artifacts,
+    required this.platformType,
   }) : super(key: key);
 
   @override
@@ -23,6 +25,7 @@ class DraggableDecodePage extends StatelessWidget {
         for (final artifact in artifacts)
           DropTargetBox(
             artifact: artifact,
+            platformType: platformType,
             onDragDone: onDragDone,
           ),
       ],

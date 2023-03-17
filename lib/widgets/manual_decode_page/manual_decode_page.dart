@@ -1,3 +1,4 @@
+import 'package:firebase_stacktrace_decoder/application/extensions/string_extension/string_extension.dart';
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
 import 'package:firebase_stacktrace_decoder/application/theme.dart';
 import 'package:firebase_stacktrace_decoder/application/uid_utils.dart';
@@ -88,17 +89,6 @@ class _TextTab extends StatefulWidget {
 
 class _TextTabState extends State<_TextTab>
     with AutomaticKeepAliveClientMixin<_TextTab> {
-  static const _emptyStr = '';
-
-  static const _androidPattern =
-      r'#\d{2} abs 0 virt [0-9a-z]{16} _kDartIsolateSnapshotInstructions(\+)\dx[0-9a-z]{5,6}';
-
-  static const _iOSPattern =
-      r'#\d{2} abs 0 _kDartIsolateSnapshotInstructions(\+)\dx[0-9a-z]{5,6}';
-  static final _androidPlatformRegExp =
-      RegExp(_androidPattern, caseSensitive: false);
-
-  static final _iOSPlatformRegExp = RegExp(_iOSPattern, caseSensitive: false);
   late final _controller = widget.controller;
 
   final Map<String, TextEditingController> _controllers = {};
@@ -143,43 +133,11 @@ class _TextTabState extends State<_TextTab>
     );
   }
 
-  String _prepareText(String text) {
-    const space = '    ';
-    final platformType = widget.platformType;
-    if (text.isNotEmpty) {
-      final buffer = StringBuffer();
-      RegExp regExp;
-
-      switch (platformType) {
-        case PlatformType.ios:
-          regExp = _iOSPlatformRegExp;
-          break;
-        case PlatformType.android:
-        // TODO: support it
-        case PlatformType.linux:
-        case PlatformType.macos:
-        case PlatformType.windows:
-        case PlatformType.fuchsia:
-          regExp = _androidPlatformRegExp;
-      }
-
-      final matches = regExp.allMatches(text);
-
-      for (var match in matches) {
-        final line = match.group(0);
-        buffer.writeln('$space$line');
-      }
-
-      return buffer.isNotEmpty ? buffer.toString() : _emptyStr;
-    }
-    return _emptyStr;
-  }
-
   void _onDecodeTabPressed(String uid) {
     final controller = _controllers[uid];
     if (controller != null) {
       final text = controller.text;
-      final stackTrace = _prepareText(text);
+      final stackTrace = text.prepareStackTrace(widget.platformType);
       if (stackTrace.isNotEmpty) {
         widget.onDecodeData(widget.artifact, [stackTrace]);
       } else {
@@ -191,7 +149,7 @@ class _TextTabState extends State<_TextTab>
   void _onDecodeAllPressed() async {
     final stackTraceList = <String>[];
     _controllers.forEach((uid, controller) {
-      final stackTrace = _prepareText(controller.text);
+      final stackTrace = controller.text.prepareStackTrace(widget.platformType);
       if (stackTrace.isNotEmpty) {
         stackTraceList.add(stackTrace);
       }

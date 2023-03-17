@@ -18,7 +18,7 @@ class PlatformTabData extends StatefulWidget {
     required this.platform,
     required this.onDragDone,
     required this.onDecodeData,
-    this.decodeMode = DecodeMode.manual,
+    this.decodeMode = DecodeMode.dragging,
   }) : super(key: key);
 
   @override
@@ -79,6 +79,7 @@ class _PlatformTabDataState extends State<PlatformTabData>
               child: DraggableDecodePage(
                 draggablePageController: _draggablePageController,
                 artifacts: artifacts,
+                platformType: widget.platform.type,
                 onDragDone: widget.onDragDone,
               ),
             ),

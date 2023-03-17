@@ -4,6 +4,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_stacktrace_decoder/application/extensions/bloc_extension/bloc_extension.dart';
+import 'package:firebase_stacktrace_decoder/application/extensions/string_extension/string_extension.dart';
 import 'package:firebase_stacktrace_decoder/application/path_provider.dart';
 import 'package:firebase_stacktrace_decoder/cmd/exception/run_exception.dart';
 import 'package:firebase_stacktrace_decoder/cmd/flutter_cmd.dart';
@@ -53,15 +54,9 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       yield const MainScreenDecodeInProgress();
       for (final stackTrace in stackTraceList) {
         if (stackTrace.isNotEmpty) {
-          final tempFileName = pathProvider.getTempFileName();
-          final fullPath = path.join(tempDir.path, tempFileName);
-          final file = File(fullPath);
-          final isSaveSuccess = await _saveTempFile(file, stackTrace);
-          if (isSaveSuccess) {
-            final data =
-                await _decodeStackTrace(artifact, FileData.fromFile(file));
+          final data = await _getDecodeResult(artifact, tempDir, stackTrace);
+          if (data != null) {
             decodeList.add(data);
-            await file.delete();
           }
         }
       }
@@ -77,10 +72,24 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       yield const MainScreenDecodeInProgress();
       final decodeList = <DecodeResult>[];
       final artifact = event.artifact;
-      for (final stacktrace in data.files) {
-        final data =
-            await _decodeStackTrace(artifact, FileData.fromXFile(stacktrace));
-        decodeList.add(data);
+      final platformType = event.platformType;
+      final tempDir = await pathProvider.getTempDir();
+      for (final file in data.files) {
+        var text = '';
+        try {
+          text = await file.readAsString();
+        } catch (e) {
+          debugPrint('error read file: $e');
+        }
+        if (text.isNotEmpty) {
+          final stackTrace = text.prepareStackTrace(platformType);
+          if (stackTrace.isNotEmpty) {
+            final data = await _getDecodeResult(artifact, tempDir, stackTrace);
+            if (data != null) {
+              decodeList.add(data);
+            }
+          }
+        }
       }
       yield MainScreenDecodeSuccess(decodeList);
     }
@@ -131,7 +140,25 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     }
   }
 
-  Future<bool> _saveTempFile(File file, String source) async {
+  Future<DecodeResult?> _getDecodeResult(
+      Artifact artifact, Directory tempDir, String stackTrace) async {
+    final file = _getTempFile(tempDir);
+    final isSaveSuccess = await _saveFile(file, stackTrace);
+    if (isSaveSuccess) {
+      final data = await _decodeStackTrace(artifact, FileData.fromFile(file));
+      await file.delete();
+      return data;
+    }
+    return null;
+  }
+
+  File _getTempFile(Directory tempDir) {
+    final tempFileName = pathProvider.getTempFileName();
+    final fullPath = path.join(tempDir.path, tempFileName);
+    return File(fullPath);
+  }
+
+  Future<bool> _saveFile(File file, String source) async {
     try {
       await file.writeAsString(source);
       return true;
@@ -150,8 +177,9 @@ extension MainScreenBlocExtension on MainScreenBloc {
   void removeProject(String projectUid) =>
       add(MainScreenProjectRemoved(projectUid));
 
-  void decodeDragging(DropDoneDetails details, Artifact artifact) =>
-      add(MainScreenStacktraceDragAndDropped(details, artifact));
+  void decodeDragging(DropDoneDetails details, Artifact artifact,
+          PlatformType platformType) =>
+      add(MainScreenStacktraceDragAndDropped(details, artifact, platformType));
 
   void decodeManual(Artifact artifact, List<String> stackTraceList) =>
       add(MainScreenStacktraceManualDecoded(artifact, stackTraceList));
