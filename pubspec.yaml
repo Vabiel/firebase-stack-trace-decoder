@@ -1,46 +1,46 @@
 name: firebase_stacktrace_decoder
 
-version: 0.1.1
+version: 0.2.0
 
 description: firebase stack trace decoder
 
 environment:
-  sdk: '>=2.19.0 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
-  args: ^2.4.0
-  bloc_concurrency: ^0.2.1
+  args: ^2.4.2
+  bloc_concurrency: ^0.2.2
   cross_file: ^0.3.3+4
   desktop_drop: ^0.4.1
   dotted_border: ^2.0.0+3
   equatable: ^2.0.5
   fading_edge_scrollview: ^3.0.0
-  file_picker: ^5.2.5
-  flutter_bloc: ^8.1.2
+  file_picker: ^5.3.3
+  flutter_bloc: ^8.1.3
   get: ^4.6.5
   hive: ^2.2.3
-  intl: ^0.17.0
+  intl: ^0.18.0
   list_ext: ^1.0.6
-  logging: ^1.1.1
-  loader_overlay: ^2.1.0
-  meta: ^1.8.0
-  multiple_localization: ^0.3.0
+  logging: ^1.2.0
+  loader_overlay: ^2.3.0
+  meta: ^1.9.1
+  multiple_localization: ^0.4.0
   multi_split_view: ^2.4.0
-  path: ^1.8.2
-  path_provider: ^2.0.11
+  path: ^1.8.3
+  path_provider: ^2.1.0
   string_ext: ^0.2.0
-  tabbed_view: ^1.16.0+1
+  tabbed_view: ^1.17.0
   uuid: ^3.0.7
-  url_launcher: ^6.1.10
+  url_launcher: ^6.1.12
   flutter: 
     sdk: flutter
   flutter_localizations: 
     sdk: flutter
 
 dev_dependencies:
-  build_runner: ^2.3.3
-  flutter_launcher_icons: ^0.12.0
-  flutter_lints: ^2.0.1
+  build_runner: ^2.4.6
+  flutter_launcher_icons: ^0.13.1
+  flutter_lints: ^2.0.2
   hive_generator: ^2.0.0
   pubspec_dependency_sorter: ^1.0.3
   flutter_test: 
