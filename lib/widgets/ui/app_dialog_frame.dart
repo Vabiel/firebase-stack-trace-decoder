@@ -26,7 +26,9 @@ class AppDialogFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Center(
-      child: ConstrainedBox(
+      child: Material(
+        color: Colors.transparent,
+        child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: width,
           maxHeight: MediaQuery.sizeOf(context).height * 0.92,
@@ -55,6 +57,7 @@ class AppDialogFrame extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
+import 'package:firebase_stacktrace_decoder/application/theme.dart';
+import 'package:firebase_stacktrace_decoder/widgets/ui/ui.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/models.dart';
@@ -20,6 +22,8 @@ class SelectPlatformResult {
 }
 
 class SelectPlatformDialog {
+  SelectPlatformDialog._();
+
   static Future<SelectPlatformResult?> show(
     BuildContext context, {
     required Project project,
@@ -33,61 +37,145 @@ class SelectPlatformDialog {
     if (entries.isEmpty) return null;
     if (entries.length == 1) return entries.first;
 
-    return showDialog<SelectPlatformResult?>(
+    return showAppDialog<SelectPlatformResult>(
       context: context,
-      builder: (BuildContext context) {
-        final l = context.l;
-        SelectPlatformResult? selected;
-        return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-          return AlertDialog(
-            title: Text(l.platformSelectorTooltip),
-            content: SingleChildScrollView(
-              child: RadioGroup<SelectPlatformResult>(
-                groupValue: selected,
-                onChanged: (value) {
-                  setState(() => selected = value);
-                },
+      builder: (ctx) => _SelectPlatformDialogBody(project: project),
+    );
+  }
+}
+
+class _SelectPlatformDialogBody extends StatefulWidget {
+  final Project project;
+  const _SelectPlatformDialogBody({required this.project});
+
+  @override
+  State<_SelectPlatformDialogBody> createState() =>
+      _SelectPlatformDialogBodyState();
+}
+
+class _SelectPlatformDialogBodyState
+    extends State<_SelectPlatformDialogBody> {
+  SelectPlatformResult? _selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = context.l;
+
+    return AppDialogFrame(
+      title: 'Open ${widget.project.name}',
+      width: 420,
+      onClose: () => Navigator.of(context).pop(),
+      footer: [
+        const Spacer(),
+        AppButton(
+          kind: AppButtonKind.ghost,
+          label: l.cancelButtonTitle,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        AppButton(
+          kind: AppButtonKind.primary,
+          label: 'Open',
+          onPressed: _selected == null
+              ? null
+              : () => Navigator.of(context).pop(_selected),
+        ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: Text(
+              'Pick a version and platform to decode against.',
+              style: TextStyle(color: t.textMuted, fontSize: 12.5),
+            ),
+          ),
+          for (final v in widget.project.versions)
+            if (v.platforms.any((p) => p.isActive)) ...[
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 4, bottom: 4, top: 6),
+                child: Mono(v.version, dim: true, size: 11.5),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: t.surface,
+                  border: Border.all(color: t.border),
+                  borderRadius: BorderRadius.circular(AppTokens.radius),
+                ),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final v in project.versions)
-                      if (v.platforms.any((p) => p.isActive)) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                          child: Text(
-                            v.version,
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
+                    for (var i = 0; i < v.platforms.length; i++)
+                      if (v.platforms[i].isActive)
+                        _buildRow(
+                          context,
+                          version: v,
+                          platform: v.platforms[i],
+                          showDivider: _hasActiveBefore(v, i),
                         ),
-                        for (final p in v.platforms.where((p) => p.isActive))
-                          RadioListTile<SelectPlatformResult>(
-                            value: SelectPlatformResult(v, p),
-                            title: Text(p.name),
-                          ),
-                      ],
                   ],
                 ),
               ),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(l.cancelButtonTitle)),
-              TextButton(
-                  onPressed: selected != null
-                      ? () => Navigator.of(context).pop(selected)
-                      : null,
-                  child: Text(l.selectButtonTitle)),
             ],
-          );
-        });
-      },
+        ],
+      ),
     );
   }
 
-  SelectPlatformDialog._();
+  bool _hasActiveBefore(ProjectVersion v, int index) {
+    for (var i = 0; i < index; i++) {
+      if (v.platforms[i].isActive) return true;
+    }
+    return false;
+  }
+
+  Widget _buildRow(BuildContext context,
+      {required ProjectVersion version,
+      required Platform platform,
+      required bool showDivider}) {
+    final t = context.tokens;
+    final value = SelectPlatformResult(version, platform);
+    final on = value == _selected;
+    final artifactCount = platform.artifacts.length;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => setState(() => _selected = value),
+        child: Container(
+          decoration: BoxDecoration(
+            color: on ? t.accentSoft : Colors.transparent,
+            border: showDivider
+                ? Border(top: BorderSide(color: t.divider))
+                : null,
+          ),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppTokens.s3, vertical: AppTokens.s2),
+          child: Row(
+            children: [
+              AppRadio(checked: on, onTap: () {
+                setState(() => _selected = value);
+              }),
+              const SizedBox(width: 10),
+              Icon(PlatformGlyphs.of(platform.type),
+                  size: 14, color: t.textMuted),
+              const SizedBox(width: 6),
+              Text(
+                platform.name,
+                style: TextStyle(color: t.text, fontSize: 13),
+              ),
+              const Spacer(),
+              Mono(
+                '$artifactCount artifact${artifactCount == 1 ? '' : 's'}',
+                dim: true,
+                size: 11,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
