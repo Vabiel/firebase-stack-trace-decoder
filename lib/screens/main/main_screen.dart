@@ -11,6 +11,7 @@ import 'package:firebase_stacktrace_decoder/widgets/projects_list/projects_list.
 import 'package:firebase_stacktrace_decoder/widgets/ui/ui.dart';
 import 'package:firebase_stacktrace_decoder/widgets/workspace/workspace.dart';
 import 'package:flutter/material.dart' hide MenuBar;
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -59,13 +60,28 @@ class _MainScreenState extends State<MainScreen> {
             _reconcileTabs(state.projects);
           }
         },
-        child: MultiSplitView(
-          initialAreas: [
-            Area(size: 280, min: 220, builder: (_, __) => _buildSidebar()),
-            Area(flex: 1, builder: (_, __) => _buildContent()),
-          ],
-          dividerBuilder: (_, __, ___, ____, _____, ______) =>
-              Container(width: 1, color: t.border),
+        child: CallbackShortcuts(
+          bindings: {
+            const SingleActivator(LogicalKeyboardKey.keyN, meta: true):
+                () => _onChangeProject(context),
+            const SingleActivator(LogicalKeyboardKey.keyN, control: true):
+                () => _onChangeProject(context),
+            const SingleActivator(LogicalKeyboardKey.keyW, meta: true):
+                _closeActiveTab,
+            const SingleActivator(LogicalKeyboardKey.keyW, control: true):
+                _closeActiveTab,
+          },
+          child: Focus(
+            autofocus: true,
+            child: MultiSplitView(
+              initialAreas: [
+                Area(size: 280, min: 220, builder: (_, __) => _buildSidebar()),
+                Area(flex: 1, builder: (_, __) => _buildContent()),
+              ],
+              dividerBuilder: (_, __, ___, ____, _____, ______) =>
+                  Container(width: 1, color: t.border),
+            ),
+          ),
         ),
       ),
     );
@@ -144,6 +160,10 @@ class _MainScreenState extends State<MainScreen> {
       return EmptyState(
         title: 'Open a project to start decoding',
         body: 'Double-click any project in the sidebar, or create a new one.',
+        shortcuts: const [
+          KbdHint(keys: ['⌘', 'N'], text: 'Create a new project'),
+          KbdHint(keys: ['⌘', 'W'], text: 'Close the active tab'),
+        ],
         action: AppButton(
           kind: AppButtonKind.primary,
           icon: AppIcons.add,
@@ -212,6 +232,10 @@ class _MainScreenState extends State<MainScreen> {
         _activeTabId = _tabs.isNotEmpty ? _tabs.last.id : null;
       }
     });
+  }
+
+  void _closeActiveTab() {
+    if (_activeTabId != null) _onCloseTab(_activeTabId!);
   }
 
   static String _tabIdOf(Project p, ProjectVersion v, Platform pl) =>

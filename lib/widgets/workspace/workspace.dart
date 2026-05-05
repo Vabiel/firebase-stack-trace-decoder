@@ -3,9 +3,11 @@ import 'package:firebase_stacktrace_decoder/application/localization.dart';
 import 'package:firebase_stacktrace_decoder/application/theme.dart';
 import 'package:firebase_stacktrace_decoder/application/uid_utils.dart';
 import 'package:firebase_stacktrace_decoder/dialogs/app_dialog/app_dialog.dart';
+import 'package:firebase_stacktrace_decoder/dialogs/file_picker_dialog/file_picker_dialog.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/widgets/ui/ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../application/extensions/string_extension/string_extension.dart';
 
@@ -310,43 +312,87 @@ class _DragModeState extends State<_DragMode> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = context.l;
-    return DropTarget(
-      onDragEntered: (_) => setState(() => _hover = true),
-      onDragExited: (_) => setState(() => _hover = false),
-      onDragDone: (details) {
-        setState(() => _hover = false);
-        widget.onDragDone(details, widget.artifact, widget.platformType);
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.keyO, meta: true): _browse,
+        const SingleActivator(LogicalKeyboardKey.keyO, control: true): _browse,
       },
-      child: DropZone(
-        active: _hover,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              AppIcons.upload,
-              size: 28,
-              color: _hover ? t.accent : t.textMuted,
+      child: Focus(
+        autofocus: true,
+        child: DropTarget(
+          onDragEntered: (_) => setState(() => _hover = true),
+          onDragExited: (_) => setState(() => _hover = false),
+          onDragDone: (details) {
+            setState(() => _hover = false);
+            widget.onDragDone(details, widget.artifact, widget.platformType);
+          },
+          child: DropZone(
+            active: _hover,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  AppIcons.upload,
+                  size: 28,
+                  color: _hover ? t.accent : t.textMuted,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  _hover ? 'Release to decode' : l.dropTargetBoxTitle,
+                  style: TextStyle(
+                    color: t.text,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Plain text or .txt — multiple files supported',
+                  style: TextStyle(color: t.textMuted, fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Kbd('⌘'),
+                    const SizedBox(width: 3),
+                    const Kbd('O'),
+                    const SizedBox(width: 8),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: _browse,
+                        child: Text(
+                          'or browse files…',
+                          style:
+                              TextStyle(color: t.textMuted, fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            Text(
-              _hover
-                  ? 'Release to decode'
-                  : l.dropTargetBoxTitle,
-              style: TextStyle(
-                color: t.text,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Plain text or .txt — multiple files supported',
-              style: TextStyle(color: t.textMuted, fontSize: 12),
-            ),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _browse() async {
+    final res = await FilePickerDialog.pickFiles();
+    if (res == null || res.files.isEmpty || !mounted) return;
+    final files = <DropItem>[
+      for (final f in res.files)
+        if (f.path != null && f.path!.isNotEmpty) DropItemFile(f.path!),
+    ];
+    if (files.isEmpty) return;
+    final details = DropDoneDetails(
+      files: files,
+      localPosition: Offset.zero,
+      globalPosition: Offset.zero,
+    );
+    widget.onDragDone(details, widget.artifact, widget.platformType);
   }
 }
 
