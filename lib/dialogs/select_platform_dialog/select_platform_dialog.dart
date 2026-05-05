@@ -31,6 +31,7 @@ class SelectPlatformDialog {
       }
     }
     if (entries.isEmpty) return null;
+    if (entries.length == 1) return entries.first;
 
     return showDialog<SelectPlatformResult?>(
       context: context,
