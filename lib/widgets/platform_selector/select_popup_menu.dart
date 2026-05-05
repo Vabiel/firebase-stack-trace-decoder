@@ -164,12 +164,12 @@ class _RadioTitle<T> extends StatefulWidget {
   final _RadioNotifier<T?> notifier;
 
   const _RadioTitle({
-    Key? key,
+    super.key,
     required this.value,
     required this.title,
     required this.onChange,
     required this.notifier,
-  }) : super(key: key);
+  });
 
   @override
   State<_RadioTitle<T>> createState() => _RadioTitleState<T>();
@@ -190,15 +190,17 @@ class _RadioTitleState<T> extends State<_RadioTitle<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return RadioListTile<T>(
+    return RadioGroup<T>(
       groupValue: widget.notifier.value,
       onChanged: (value) {
         if (value != null) {
           widget.onChange(value);
         }
       },
-      value: widget.value,
-      title: widget.title,
+      child: RadioListTile<T>(
+        value: widget.value,
+        title: widget.title,
+      ),
     );
   }
 
@@ -213,11 +215,10 @@ class _CheckboxTitle extends StatefulWidget {
   final ValueChanged<bool> onChange;
 
   const _CheckboxTitle({
-    Key? key,
     required this.value,
     required this.title,
     required this.onChange,
-  }) : super(key: key);
+  });
 
   @override
   State<_CheckboxTitle> createState() => _CheckboxTitleState();

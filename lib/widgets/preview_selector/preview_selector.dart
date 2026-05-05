@@ -10,10 +10,10 @@ class PreviewSelector extends StatefulWidget {
   final ValueChanged<String?> onChange;
 
   const PreviewSelector({
-    Key? key,
+    super.key,
     this.preview,
     required this.onChange,
-  }) : super(key: key);
+  });
 
   @override
   State<PreviewSelector> createState() => _PreviewSelectorState();

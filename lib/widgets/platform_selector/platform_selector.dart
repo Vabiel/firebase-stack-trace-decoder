@@ -8,8 +8,7 @@ class PlatformSelector extends StatelessWidget {
   final PopupItemChange<PlatformType> onChange;
 
   const PlatformSelector(
-      {Key? key, required this.onChange, this.platforms = const []})
-      : super(key: key);
+      {super.key, required this.onChange, this.platforms = const []});
 
   @override
   Widget build(BuildContext context) {

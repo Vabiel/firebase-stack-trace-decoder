@@ -14,12 +14,12 @@ class PlatformTabData extends StatefulWidget {
   final DecodeMode decodeMode;
 
   const PlatformTabData({
-    Key? key,
+    super.key,
     required this.platform,
     required this.onDragDone,
     required this.onDecodeData,
     this.decodeMode = DecodeMode.dragging,
-  }) : super(key: key);
+  });
 
   @override
   State<PlatformTabData> createState() => _PlatformTabDataState();

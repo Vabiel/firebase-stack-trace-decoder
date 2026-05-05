@@ -9,13 +9,13 @@ class ActionPopupMenu extends StatelessWidget {
   final Color? iconColor;
 
   const ActionPopupMenu({
-    Key? key,
+    super.key,
     required this.onRemoveActionSelect,
     required this.onEditActionSelect,
     this.removeActionTitle,
     this.editActionTitle,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

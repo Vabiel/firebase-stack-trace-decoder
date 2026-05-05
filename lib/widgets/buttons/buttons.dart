@@ -5,9 +5,9 @@ class CloseBtn extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const CloseBtn({
-    Key? key,
+    super.key,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +26,10 @@ class AddButton extends StatelessWidget {
   final String tooltip;
 
   const AddButton({
-    Key? key,
+    super.key,
     this.onPressed,
     required this.tooltip,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +50,13 @@ class ActionIconButton extends StatelessWidget {
   final Color? hoverColor;
 
   const ActionIconButton({
-    Key? key,
+    super.key,
     this.onPressed,
     required this.icon,
     this.tooltip,
     this.iconColor,
     this.hoverColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

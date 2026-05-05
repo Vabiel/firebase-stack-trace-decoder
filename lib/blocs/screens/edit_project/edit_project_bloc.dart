@@ -31,24 +31,21 @@ class EditProjectBloc extends Bloc<EditProjectEvent, EditProjectState> {
 
   Stream<EditProjectState> _saveProject(EditProjectSavePressed event) async* {
     final name = event.name;
-    final version = event.version;
-    final platforms = event.platforms;
+    final versions = event.versions;
     final preview = event.preview;
     Project updatedProject;
 
     if (input != null) {
       updatedProject = input!.copyWith(
         name: name,
-        version: version,
-        platforms: platforms,
+        versions: versions,
         preview: preview,
       );
     } else {
       updatedProject = Project(
         uid: UidUtils.v4,
         name: name,
-        version: version,
-        platforms: platforms,
+        versions: versions,
         preview: preview,
       );
     }
@@ -77,15 +74,13 @@ class EditProjectBloc extends Bloc<EditProjectEvent, EditProjectState> {
 extension EditProjectBlocExtension on EditProjectBloc {
   void saveProject({
     required String name,
-    required String version,
-    required List<Platform> platforms,
+    required List<ProjectVersion> versions,
     String? preview,
   }) =>
       add(
         EditProjectSavePressed(
           name: name,
-          version: version,
-          platforms: platforms,
+          versions: versions,
           preview: preview,
         ),
       );

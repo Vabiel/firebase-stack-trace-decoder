@@ -1,4 +1,4 @@
-library repositories;
+library;
 
 export 'core/local_store/local_store.dart';
 export 'core/local_provider_base/local_provider_base.dart';

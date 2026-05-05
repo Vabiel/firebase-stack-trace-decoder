@@ -157,16 +157,19 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _onSelectProject(BuildContext context, Project project) async {
-    final platform = await SelectPlatformDialog.show(context, project: project);
-    if (platform != null) {
-      final tabIndex = _controller.tabs.indexWhere((e) => e.value == platform);
+    final result = await SelectPlatformDialog.show(context, project: project);
+    if (result != null) {
+      final platform = result.platform;
+      final version = result.version;
+      final tabIndex = _controller.tabs.indexWhere((e) => e.value == result);
       if (tabIndex != -1) {
         _controller.selectedIndex = tabIndex;
       } else {
-        final tabText = '${project.name}-${platform.name}';
+        final tabText =
+            '${project.name} ${version.version} - ${platform.name}';
         _controller.addTab(
           TabData(
-            value: platform,
+            value: result,
             text: tabText,
             keepAlive: true,
             content: PlatformTabData(

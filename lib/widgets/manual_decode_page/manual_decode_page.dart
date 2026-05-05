@@ -17,12 +17,12 @@ class ManualDecodePage extends StatefulWidget {
   final OnDecodeData onDecodeData;
 
   const ManualDecodePage({
-    Key? key,
+    super.key,
     required this.manualPageController,
     required this.platformType,
     required this.artifacts,
     required this.onDecodeData,
-  }) : super(key: key);
+  });
 
   @override
   State<ManualDecodePage> createState() => _ManualDecodePageState();
@@ -76,12 +76,11 @@ class _TextTab extends StatefulWidget {
   final OnDecodeData onDecodeData;
 
   const _TextTab({
-    Key? key,
     required this.artifact,
     required this.platformType,
     required this.controller,
     required this.onDecodeData,
-  }) : super(key: key);
+  });
 
   @override
   State<_TextTab> createState() => _TextTabState();

@@ -7,10 +7,10 @@ class ProjectPreview extends StatelessWidget {
   final String preview;
 
   const ProjectPreview({
-    Key? key,
+    super.key,
     required this.preview,
     this.previewSize = 64,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -16,14 +16,14 @@ class ProjectsList extends StatelessWidget {
   final VoidCallback onAddProject;
 
   const ProjectsList({
-    Key? key,
+    super.key,
     required this.scrollController,
     required this.projects,
     required this.onProjectSelect,
     required this.onRemovePress,
     required this.onEditPress,
     required this.onAddProject,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -91,12 +91,11 @@ class _ProjectListItem extends StatelessWidget {
   final VoidCallback onDoubleTap;
 
   const _ProjectListItem({
-    Key? key,
     required this.project,
     required this.onRemovePress,
     required this.onEditPress,
     required this.onDoubleTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +137,7 @@ class _ProjectListItem extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _buildText(
-                                '${project.name} (${project.version})',
+                                project.name,
                                 style: nameStyle,
                               ),
                               Text(
@@ -162,12 +161,14 @@ class _ProjectListItem extends StatelessWidget {
   }
 
   String _getPlatformsTitle(bool isEnabled, AppLocalizations l) {
-    return isEnabled
-        ? project.platforms
-            .where((p) => p.isActive)
-            .map((e) => e.name)
-            .join(', ')
-        : l.projectItemEmptyTitle;
+    if (!isEnabled) return l.projectItemEmptyTitle;
+    return project.activeVersions
+        .map((v) {
+          final platforms =
+              v.platforms.where((p) => p.isActive).map((e) => e.name).join(', ');
+          return '${v.version}: $platforms';
+        })
+        .join(' • ');
   }
 
   Widget _buildText(String title, {required TextStyle style}) {

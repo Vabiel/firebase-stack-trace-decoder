@@ -1,6 +1,5 @@
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:list_ext/list_ext.dart';
 
 part 'project.g.dart';
 
@@ -14,57 +13,50 @@ class Project extends Entity {
   final String name;
 
   @HiveField(2)
-  final String version;
+  final List<ProjectVersion> versions;
 
   @HiveField(3)
-  final List<Platform> platforms;
-
-  @HiveField(4)
   @override
   final int position;
 
-  @HiveField(5)
+  @HiveField(4)
   final String? preview;
 
   Project({
     required this.uid,
     required this.name,
-    required this.version,
+    this.versions = const [],
     this.position = -1,
-    this.platforms = const [],
     this.preview,
-  })  : assert(name.isNotEmpty),
-        assert(version.isNotEmpty);
+  }) : assert(name.isNotEmpty);
 
-  bool get hasPlatforms => platforms.countWhere((e) => e.isActive) > 0;
+  bool get hasPlatforms => versions.any((v) => v.hasPlatforms);
 
-  bool get hasAnyPlatforms => platforms.isNotEmpty;
+  bool get hasAnyPlatforms => versions.any((v) => v.hasAnyPlatforms);
 
-  int get activePlatformsCount => platforms.countWhere((e) => e.isActive);
+  Iterable<ProjectVersion> get activeVersions =>
+      versions.where((v) => v.hasPlatforms);
 
   @override
   List<Object?> get props => [
         uid,
         name,
-        version,
-        platforms,
+        versions,
         position,
         preview,
       ];
 
   Project copyWith({
     String? name,
-    String? version,
     String? preview,
-    List<Platform>? platforms,
+    List<ProjectVersion>? versions,
     int? position,
     bool nullablePreview = true,
   }) {
     return Project(
       uid: uid,
       name: name ?? this.name,
-      version: version ?? this.version,
-      platforms: platforms ?? this.platforms,
+      versions: versions ?? this.versions,
       position: position ?? this.position,
       preview: nullablePreview ? preview : preview ?? this.preview,
     );

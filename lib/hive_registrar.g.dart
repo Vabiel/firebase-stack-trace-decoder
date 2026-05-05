@@ -6,6 +6,7 @@ import 'package:hive_ce/hive_ce.dart';
 import 'package:firebase_stacktrace_decoder/models/core/artifact/artifact.dart';
 import 'package:firebase_stacktrace_decoder/models/core/platform/platform.dart';
 import 'package:firebase_stacktrace_decoder/models/core/project/project.dart';
+import 'package:firebase_stacktrace_decoder/models/core/project_version/project_version.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
@@ -13,6 +14,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(PlatformAdapter());
     registerAdapter(PlatformTypeAdapter());
     registerAdapter(ProjectAdapter());
+    registerAdapter(ProjectVersionAdapter());
   }
 }
 
@@ -22,5 +24,6 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(PlatformAdapter());
     registerAdapter(PlatformTypeAdapter());
     registerAdapter(ProjectAdapter());
+    registerAdapter(ProjectVersionAdapter());
   }
 }

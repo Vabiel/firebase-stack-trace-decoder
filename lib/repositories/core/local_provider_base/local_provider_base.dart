@@ -7,7 +7,7 @@ abstract class LocalProviderBase<T extends Entity> {
   bool get isInitialized => _initialized;
 
   final String boxName;
-  late final Box<T> _box;
+  late Box<T> _box;
 
   LocalProviderBase(this.boxName);
 
@@ -18,7 +18,17 @@ abstract class LocalProviderBase<T extends Entity> {
     }
     _initialized = true;
 
-    _box = await Hive.openBox<T>(boxName);
+    try {
+      _box = await Hive.openBox<T>(boxName);
+      _box.values.toList();
+    } catch (_) {
+      // Schema changed and old data is incompatible; drop the box.
+      try {
+        await _box.close();
+      } catch (_) {}
+      await Hive.deleteBoxFromDisk(boxName);
+      _box = await Hive.openBox<T>(boxName);
+    }
   }
 
   Future<List<T>> getAll() async {

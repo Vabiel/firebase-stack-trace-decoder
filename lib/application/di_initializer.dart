@@ -62,9 +62,9 @@ class DiInitializer extends StatefulWidget {
   final Widget child;
 
   const DiInitializer({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _DiInitializerState();

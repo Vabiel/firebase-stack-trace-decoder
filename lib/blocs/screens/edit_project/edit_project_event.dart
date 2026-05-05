@@ -6,23 +6,20 @@ abstract class EditProjectEvent extends Equatable {
 
 class EditProjectSavePressed extends EditProjectEvent {
   final String name;
-  final String version;
   final String? preview;
-  final List<Platform> platforms;
+  final List<ProjectVersion> versions;
 
   const EditProjectSavePressed({
     required this.name,
-    required this.version,
-    required this.platforms,
+    required this.versions,
     this.preview,
   });
 
   @override
   List<Object?> get props => [
         name,
-        version,
         preview,
-        platforms,
+        versions,
       ];
 }
 

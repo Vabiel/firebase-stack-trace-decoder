@@ -15,10 +15,10 @@ class PlatformList extends StatefulWidget {
   final PlatformListController controller;
 
   const PlatformList({
-    Key? key,
+    super.key,
     required this.headerBuilder,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State<PlatformList> createState() => _PlatformSelectorState();

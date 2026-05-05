@@ -102,6 +102,12 @@ class AppLocalizations {
   String get editProjectScreenVersionFieldTitle =>
       Intl.message('Version', name: 'editProjectScreenVersionFieldTitle');
 
+  String get addVersionButtonTitle =>
+      Intl.message('Add version', name: 'addVersionButtonTitle');
+
+  String get deleteVersionTooltip =>
+      Intl.message('Delete version', name: 'deleteVersionTooltip');
+
   String get addButtonTitle => Intl.message('Add', name: 'addButtonTitle');
 
   String get deleteButtonTitle =>

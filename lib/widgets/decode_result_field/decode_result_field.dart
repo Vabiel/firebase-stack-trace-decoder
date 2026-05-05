@@ -7,11 +7,11 @@ class DecodeResultField extends StatelessWidget {
   final String? errorText;
 
   const DecodeResultField({
-    Key? key,
+    super.key,
     required this.controller,
     this.contextMenuActions = const [],
     this.errorText,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

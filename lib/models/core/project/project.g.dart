@@ -19,29 +19,27 @@ class ProjectAdapter extends TypeAdapter<Project> {
     return Project(
       uid: fields[0] as String,
       name: fields[1] as String,
-      version: fields[2] as String,
-      position: fields[4] == null ? -1 : (fields[4] as num).toInt(),
-      platforms:
-          fields[3] == null ? const [] : (fields[3] as List).cast<Platform>(),
-      preview: fields[5] as String?,
+      versions: fields[2] == null
+          ? const []
+          : (fields[2] as List).cast<ProjectVersion>(),
+      position: fields[3] == null ? -1 : (fields[3] as num).toInt(),
+      preview: fields[4] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Project obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.version)
+      ..write(obj.versions)
       ..writeByte(3)
-      ..write(obj.platforms)
-      ..writeByte(4)
       ..write(obj.position)
-      ..writeByte(5)
+      ..writeByte(4)
       ..write(obj.preview);
   }
 

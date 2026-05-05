@@ -9,12 +9,12 @@ class DraggableDecodePage extends StatelessWidget {
   final PlatformType platformType;
 
   const DraggableDecodePage({
-    Key? key,
+    super.key,
     required this.draggablePageController,
     required this.onDragDone,
     required this.artifacts,
     required this.platformType,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

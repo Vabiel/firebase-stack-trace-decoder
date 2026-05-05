@@ -13,8 +13,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 class DecodeResultScreen extends StatefulWidget {
   final List<DecodeResult> decodeList;
 
-  const DecodeResultScreen({Key? key, this.decodeList = const []})
-      : super(key: key);
+  const DecodeResultScreen({super.key, this.decodeList = const []});
 
   @override
   State<DecodeResultScreen> createState() => _DecodeResultScreenState();

@@ -7,11 +7,11 @@ class ArtifactSelector extends StatefulWidget {
   final Artifact? selected;
 
   const ArtifactSelector({
-    Key? key,
+    super.key,
     required this.artifacts,
     required this.onSelect,
     required this.selected,
-  }) : super(key: key);
+  });
 
   @override
   State<ArtifactSelector> createState() => _ArtifactSelectorState();

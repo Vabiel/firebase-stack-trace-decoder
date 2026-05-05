@@ -1,5 +1,6 @@
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
+import 'package:firebase_stacktrace_decoder/application/uid_utils.dart';
 import 'package:firebase_stacktrace_decoder/blocs/screens/edit_project/edit_project_bloc.dart';
 import 'package:firebase_stacktrace_decoder/dialogs/app_dialog/app_dialog.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
@@ -12,7 +13,7 @@ import 'package:get/get.dart';
 class EditProjectScreen extends StatefulWidget {
   final Project? project;
 
-  const EditProjectScreen({Key? key, this.project}) : super(key: key);
+  const EditProjectScreen({super.key, this.project});
 
   @override
   State<EditProjectScreen> createState() => _EditProjectScreenState();
@@ -20,9 +21,8 @@ class EditProjectScreen extends StatefulWidget {
 
 class _EditProjectScreenState extends State<EditProjectScreen> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _versionController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  late final PlatformListController _platformListController;
+  final List<_VersionEditorState> _versionStates = [];
   late final EditProjectBloc _editProjectBloc;
   var _isSavePressed = false;
   String? _preview;
@@ -31,28 +31,32 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
   void initState() {
     super.initState();
     final project = widget.project;
-    final hasSomePlatforms = project != null && project.hasPlatforms;
     _preview = project?.preview;
     _editProjectBloc = EditProjectBloc(
       projectLocalProvider: Get.find(),
       input: project,
     );
     _nameController.text = project?.name ?? '';
-    _versionController.text = project?.version ?? '';
-    _platformListController = PlatformListController(
-        hasSomePlatforms ? List<Platform>.from(project.platforms) : []);
     _nameController.addListener(_textListener);
-    _versionController.addListener(_textListener);
+
+    final initialVersions = project?.versions ?? const <ProjectVersion>[];
+    if (initialVersions.isEmpty) {
+      _versionStates.add(_VersionEditorState.empty());
+    } else {
+      for (final v in initialVersions) {
+        _versionStates.add(_VersionEditorState.fromVersion(v));
+      }
+    }
   }
 
   @override
   void dispose() {
     _nameController.removeListener(_textListener);
-    _versionController.removeListener(_textListener);
     _nameController.dispose();
-    _versionController.dispose();
-    _platformListController.dispose();
     _scrollController.dispose();
+    for (final v in _versionStates) {
+      v.dispose();
+    }
     _editProjectBloc.close();
     super.dispose();
   }
@@ -84,7 +88,8 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
       child: ClipRect(
         child: Column(
           children: [
-            _buildPlatformList(l),
+            _buildHeader(l),
+            Expanded(child: _buildVersions(l)),
             _buildBottomPanel(context, l, project),
           ],
         ),
@@ -92,50 +97,61 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
     );
   }
 
-  Widget _buildPlatformList(AppLocalizations l) {
-    return Expanded(
-      child: FadingEdgeScrollView.fromSingleChildScrollView(
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: PlatformList(
-              controller: _platformListController,
-              headerBuilder: (context) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    PreviewSelector(
-                      preview: _preview,
-                      onChange: (preview) {
-                        setState(() {
-                          _preview = preview;
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildTextField(
-                            _nameController,
-                            l,
-                            label: l.editProjectScreenNameFieldTitle,
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            _versionController,
-                            l,
-                            label: l.editProjectScreenVersionFieldTitle,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
+  Widget _buildHeader(AppLocalizations l) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PreviewSelector(
+            preview: _preview,
+            onChange: (preview) {
+              setState(() {
+                _preview = preview;
+              });
+            },
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildTextField(
+              _nameController,
+              l,
+              label: l.editProjectScreenNameFieldTitle,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVersions(AppLocalizations l) {
+    return FadingEdgeScrollView.fromSingleChildScrollView(
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              for (var i = 0; i < _versionStates.length; i++)
+                _VersionEditor(
+                  key: ValueKey(_versionStates[i].id),
+                  state: _versionStates[i],
+                  canDelete: _versionStates.length > 1,
+                  showError: _isSavePressed,
+                  onDelete: () => _onDeleteVersion(i),
+                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    onPressed: _onAddVersion,
+                    icon: const Icon(Icons.add),
+                    label: Text(l.addVersionButtonTitle),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -200,15 +216,26 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
   }) {
     final bool canShowError = _isSavePressed && controller.text.isEmpty;
     final errorText = l.filledTextError(label);
-    return Flexible(
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-            label: Text(label),
-            border: const OutlineInputBorder(),
-            errorText: canShowError ? errorText : null),
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        label: Text(label),
+        border: const OutlineInputBorder(),
+        errorText: canShowError ? errorText : null,
       ),
     );
+  }
+
+  void _onAddVersion() {
+    setState(() {
+      _versionStates.add(_VersionEditorState.empty());
+    });
+  }
+
+  void _onDeleteVersion(int index) {
+    setState(() {
+      _versionStates.removeAt(index).dispose();
+    });
   }
 
   Future<void> _onDeletePressed(BuildContext context) async {
@@ -218,22 +245,24 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
     if (res) {
       final project = widget.project;
       if (project != null) {
-        final projectUid = project.uid;
-        _editProjectBloc.deleteProject(projectUid);
+        _editProjectBloc.deleteProject(project.uid);
       }
     }
   }
 
   void _onSavePressed(BuildContext context) {
-    if (_nameController.text.isNotEmpty && _versionController.text.isNotEmpty) {
-      final name = _nameController.text;
-      final version = _versionController.text;
-      final platforms = _platformListController.platforms;
+    final hasName = _nameController.text.isNotEmpty;
+    final allVersionsValid =
+        _versionStates.every((v) => v.versionController.text.isNotEmpty);
+    if (hasName && allVersionsValid) {
+      final versions = [
+        for (final state in _versionStates) state.toModel(),
+      ];
       _editProjectBloc.saveProject(
-          name: name,
-          version: version,
-          platforms: platforms,
-          preview: _preview);
+        name: _nameController.text,
+        versions: versions,
+        preview: _preview,
+      );
     } else {
       setState(() {
         _isSavePressed = true;
@@ -249,5 +278,129 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
 
   Future<void> _showAlertDialog(BuildContext context, String content) {
     return AppDialog.showAlert(context, content: content);
+  }
+}
+
+class _VersionEditorState {
+  final String id;
+  final String? existingUid;
+  final TextEditingController versionController;
+  final PlatformListController platformListController;
+
+  _VersionEditorState._({
+    required this.id,
+    required this.existingUid,
+    required this.versionController,
+    required this.platformListController,
+  });
+
+  factory _VersionEditorState.empty() {
+    return _VersionEditorState._(
+      id: UidUtils.v4,
+      existingUid: null,
+      versionController: TextEditingController(),
+      platformListController: PlatformListController([]),
+    );
+  }
+
+  factory _VersionEditorState.fromVersion(ProjectVersion v) {
+    return _VersionEditorState._(
+      id: v.uid,
+      existingUid: v.uid,
+      versionController: TextEditingController(text: v.version),
+      platformListController:
+          PlatformListController(List<Platform>.from(v.platforms)),
+    );
+  }
+
+  ProjectVersion toModel() {
+    return ProjectVersion(
+      uid: existingUid ?? UidUtils.v4,
+      version: versionController.text,
+      platforms: platformListController.platforms,
+    );
+  }
+
+  void dispose() {
+    versionController.dispose();
+    platformListController.dispose();
+  }
+}
+
+class _VersionEditor extends StatefulWidget {
+  final _VersionEditorState state;
+  final bool canDelete;
+  final bool showError;
+  final VoidCallback onDelete;
+
+  const _VersionEditor({
+    super.key,
+    required this.state,
+    required this.canDelete,
+    required this.showError,
+    required this.onDelete,
+  });
+
+  @override
+  State<_VersionEditor> createState() => _VersionEditorWidgetState();
+}
+
+class _VersionEditorWidgetState extends State<_VersionEditor> {
+  @override
+  void initState() {
+    super.initState();
+    widget.state.versionController.addListener(_listener);
+  }
+
+  @override
+  void dispose() {
+    widget.state.versionController.removeListener(_listener);
+    super.dispose();
+  }
+
+  void _listener() {
+    if (widget.showError) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l;
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: PlatformList(
+          controller: widget.state.platformListController,
+          headerBuilder: (context) {
+            final canShowError =
+                widget.showError && widget.state.versionController.text.isEmpty;
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: widget.state.versionController,
+                    decoration: InputDecoration(
+                      label: Text(l.editProjectScreenVersionFieldTitle),
+                      border: const OutlineInputBorder(),
+                      errorText: canShowError
+                          ? l.filledTextError(
+                              l.editProjectScreenVersionFieldTitle)
+                          : null,
+                    ),
+                  ),
+                ),
+                if (widget.canDelete)
+                  IconButton(
+                    onPressed: widget.onDelete,
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    tooltip: l.deleteVersionTooltip,
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
   }
 }
