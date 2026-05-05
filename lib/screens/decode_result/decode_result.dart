@@ -2,7 +2,7 @@ import 'package:firebase_stacktrace_decoder/application/localization.dart';
 import 'package:firebase_stacktrace_decoder/application/theme.dart';
 import 'package:firebase_stacktrace_decoder/blocs/screens/decode_result/decode_result_bloc.dart';
 import 'package:firebase_stacktrace_decoder/dialogs/app_dialog/app_dialog.dart';
-import 'package:firebase_stacktrace_decoder/widgets/drop_target_box/drop_target_box.dart';
+import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';

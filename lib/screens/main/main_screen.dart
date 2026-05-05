@@ -7,16 +7,14 @@ import 'package:firebase_stacktrace_decoder/dialogs/select_platform_dialog/selec
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/screens/decode_result/decode_result.dart';
 import 'package:firebase_stacktrace_decoder/screens/edit_project/edit_project_screen.dart';
-import 'package:firebase_stacktrace_decoder/widgets/drop_target_box/drop_target_box.dart';
-import 'package:firebase_stacktrace_decoder/widgets/platform_tab_data/platform_tab_data.dart';
 import 'package:firebase_stacktrace_decoder/widgets/projects_list/projects_list.dart';
+import 'package:firebase_stacktrace_decoder/widgets/ui/ui.dart';
+import 'package:firebase_stacktrace_decoder/widgets/workspace/workspace.dart';
+import 'package:flutter/material.dart' hide MenuBar;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:multi_split_view/multi_split_view.dart';
-import 'package:tabbed_view/tabbed_view.dart';
-
-import 'package:flutter/material.dart' hide MenuBar;
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -26,25 +24,28 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final _controller = TabbedViewController([]);
   final _scrollController = ScrollController();
-  final _selectProjectController = ScrollController();
   late final MainScreenBloc _mainScreenBloc =
       MainScreenBloc(Get.find(), Get.find(), Get.find())..shown();
 
+  /// Open tabs. Each entry is a (project, version, platform) triple. The
+  /// `platform`/`version` instances must be the live ones from the project
+  /// list — that's how the workspace picks up artifact updates.
+  final List<_OpenTab> _tabs = [];
+  String? _activeTabId;
+
   @override
   void dispose() {
-    _controller.dispose();
     _scrollController.dispose();
-    _selectProjectController.dispose();
+    _mainScreenBloc.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = context.tokens;
     return Scaffold(
-      backgroundColor: const Color(0xffe9e9e9),
-      // appBar: MenuBar.horizontal(),
+      backgroundColor: t.bg,
       body: BlocListener<MainScreenBloc, MainScreenState>(
         bloc: _mainScreenBloc,
         listener: (context, state) async {
@@ -53,44 +54,33 @@ class _MainScreenState extends State<MainScreen> {
             context.loaderOverlay.show();
           } else if (state is MainScreenDecodeSuccess) {
             await _showDecodeResultScreen(context, state.decodeList);
+          } else if (state is MainScreenLoadSuccess) {
+            // Drop tabs whose backing platform/version no longer exists.
+            _reconcileTabs(state.projects);
           }
         },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: MultiSplitView(
-            initialAreas: [
-              Area(
-                flex: 0.35,
-                builder: (context, area) => _buildProjectList(),
-              ),
-              Area(
-                flex: 0.65,
-                builder: (context, area) => _buildTabbedView(),
-              ),
-            ],
-          ),
+        child: MultiSplitView(
+          initialAreas: [
+            Area(size: 280, min: 220, builder: (_, __) => _buildSidebar()),
+            Area(flex: 1, builder: (_, __) => _buildContent()),
+          ],
+          dividerBuilder: (_, __, ___, ____, _____, ______) =>
+              Container(width: 1, color: t.border),
         ),
       ),
     );
   }
 
-  Widget _buildTabbedView() {
-    return TabbedViewTheme(
-      data: TabbedViewThemeData.classic(
-        borderColor: AppTheme.borderColor,
-      ),
-      child: TabbedView(
-        controller: _controller,
-      ),
-    );
-  }
-
-  Widget _buildProjectList() {
+  Widget _buildSidebar() {
+    final t = context.tokens;
     return Container(
-      decoration: AppTheme.boxBorder,
+      decoration: BoxDecoration(
+        color: t.bg,
+        border: Border(right: BorderSide(color: t.border)),
+      ),
       child: BlocBuilder<MainScreenBloc, MainScreenState>(
         bloc: _mainScreenBloc,
-        buildWhen: (prev, current) => current is MainScreenLoadSuccess,
+        buildWhen: (_, c) => c is MainScreenLoadSuccess,
         builder: (context, state) {
           if (state is MainScreenLoadSuccess) {
             return ProjectsList(
@@ -102,12 +92,132 @@ class _MainScreenState extends State<MainScreen> {
               onProjectSelect: (p) => _onSelectProject(context, p),
             );
           }
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(strokeWidth: 1.5));
         },
       ),
     );
   }
 
+  Widget _buildContent() {
+    final t = context.tokens;
+    return Container(
+      color: t.surface,
+      child: Column(
+        children: [
+          if (_tabs.isNotEmpty)
+            TabStrip<String>(
+              tabs: [
+                for (final tab in _tabs)
+                  AppTab<String>(
+                    id: tab.id,
+                    title: tab.title,
+                    icon: PlatformGlyphs.of(tab.platform.type),
+                  ),
+              ],
+              activeId: _activeTabId,
+              onSelect: (id) => setState(() => _activeTabId = id),
+              onClose: _onCloseTab,
+            )
+          else
+            Container(
+              height: 36,
+              padding: const EdgeInsets.symmetric(horizontal: AppTokens.s3),
+              alignment: Alignment.centerLeft,
+              decoration: BoxDecoration(
+                color: t.bg,
+                border: Border(bottom: BorderSide(color: t.border)),
+              ),
+              child: Text(
+                'No tabs open',
+                style: TextStyle(color: t.textDim, fontSize: 11.5),
+              ),
+            ),
+          Expanded(child: _buildBody()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_tabs.isEmpty) {
+      final l = context.l;
+      return EmptyState(
+        title: 'Open a project to start decoding',
+        body: 'Double-click any project in the sidebar, or create a new one.',
+        action: AppButton(
+          kind: AppButtonKind.primary,
+          icon: AppIcons.add,
+          label: l.editProjectScreenNewTitle,
+          onPressed: () => _onChangeProject(context),
+        ),
+      );
+    }
+    final activeIndex = _tabs.indexWhere((t) => t.id == _activeTabId);
+    return IndexedStack(
+      index: activeIndex == -1 ? 0 : activeIndex,
+      sizing: StackFit.expand,
+      children: [
+        for (final tab in _tabs)
+          KeyedSubtree(
+            key: ValueKey(tab.id),
+            child: WorkspaceView(
+              version: tab.version,
+              platform: tab.platform,
+              onDragDone: _mainScreenBloc.decodeDragging,
+              onDecodeData: _mainScreenBloc.decodeManual,
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ── Tab management ────────────────────────────────────────────────────────
+  void _reconcileTabs(List<Project> projects) {
+    if (_tabs.isEmpty) return;
+    final live = <String, _OpenTab>{};
+    for (final p in projects) {
+      for (final v in p.versions) {
+        for (final pl in v.platforms.where((pl) => pl.isActive)) {
+          live[_tabIdOf(p, v, pl)] = _OpenTab(
+            id: _tabIdOf(p, v, pl),
+            title: '${p.name} ${v.version} — ${pl.name}',
+            project: p,
+            version: v,
+            platform: pl,
+          );
+        }
+      }
+    }
+    setState(() {
+      final removed = <String>[];
+      for (var i = 0; i < _tabs.length; i++) {
+        final updated = live[_tabs[i].id];
+        if (updated == null) {
+          removed.add(_tabs[i].id);
+        } else {
+          _tabs[i] = updated;
+        }
+      }
+      _tabs.removeWhere((t) => removed.contains(t.id));
+      if (!_tabs.any((t) => t.id == _activeTabId)) {
+        _activeTabId = _tabs.isNotEmpty ? _tabs.last.id : null;
+      }
+    });
+  }
+
+  void _onCloseTab(String id) {
+    setState(() {
+      _tabs.removeWhere((t) => t.id == id);
+      if (_activeTabId == id) {
+        _activeTabId = _tabs.isNotEmpty ? _tabs.last.id : null;
+      }
+    });
+  }
+
+  static String _tabIdOf(Project p, ProjectVersion v, Platform pl) =>
+      '${p.uid}/${v.uid}/${pl.uid}';
+
+  // ── Project actions ───────────────────────────────────────────────────────
   Future<ActionResult?> _showEditProjectScreen(BuildContext context,
       [Project? project]) async {
     final l = context.l;
@@ -117,13 +227,9 @@ class _MainScreenState extends State<MainScreen> {
     final res = await AppDialog.showForm(
       context,
       title: title,
-      body: EditProjectScreen(
-        project: project,
-      ),
+      body: EditProjectScreen(project: project),
     );
-    if (res != null && res is ActionResult) {
-      return res;
-    }
+    if (res != null && res is ActionResult) return res;
     return null;
   }
 
@@ -133,9 +239,7 @@ class _MainScreenState extends State<MainScreen> {
     await AppDialog.showForm(
       context,
       title: l.decodeResultScreenTitle,
-      body: DecodeResultScreen(
-        decodeList: decodeList,
-      ),
+      body: DecodeResultScreen(decodeList: decodeList),
     );
   }
 
@@ -143,44 +247,50 @@ class _MainScreenState extends State<MainScreen> {
     final l = context.l;
     final res = await AppDialog.showConfirm(context,
         title: l.deleteProjectDialogTitle, content: l.deleteProjectDialogText);
-    if (res) {
-      _mainScreenBloc.removeProject(project.uid);
-    }
+    if (res) _mainScreenBloc.removeProject(project.uid);
   }
 
   Future<void> _onChangeProject(BuildContext context,
       [Project? project]) async {
     final res = await _showEditProjectScreen(context, project);
-    if (res != null) {
-      _mainScreenBloc.changeProject();
-    }
+    if (res != null) _mainScreenBloc.changeProject();
   }
 
   Future<void> _onSelectProject(BuildContext context, Project project) async {
     final result = await SelectPlatformDialog.show(context, project: project);
-    if (result != null) {
-      final platform = result.platform;
-      final version = result.version;
-      final tabIndex = _controller.tabs.indexWhere((e) => e.value == result);
-      if (tabIndex != -1) {
-        _controller.selectedIndex = tabIndex;
-      } else {
-        final tabText =
-            '${project.name} ${version.version} - ${platform.name}';
-        _controller.addTab(
-          TabData(
-            value: result,
-            text: tabText,
-            keepAlive: true,
-            content: PlatformTabData(
-              platform: platform,
-              onDragDone: _mainScreenBloc.decodeDragging,
-              onDecodeData: _mainScreenBloc.decodeManual,
-            ),
-          ),
-        );
-        _controller.selectedIndex = _controller.tabs.length - 1;
-      }
+    if (result == null) return;
+    final id = _tabIdOf(project, result.version, result.platform);
+    final existing = _tabs.indexWhere((t) => t.id == id);
+    if (existing != -1) {
+      setState(() => _activeTabId = id);
+      return;
     }
+    setState(() {
+      _tabs.add(_OpenTab(
+        id: id,
+        title:
+            '${project.name} ${result.version.version} — ${result.platform.name}',
+        project: project,
+        version: result.version,
+        platform: result.platform,
+      ));
+      _activeTabId = id;
+    });
   }
+}
+
+class _OpenTab {
+  final String id;
+  final String title;
+  final Project project;
+  final ProjectVersion version;
+  final Platform platform;
+
+  const _OpenTab({
+    required this.id,
+    required this.title,
+    required this.project,
+    required this.version,
+    required this.platform,
+  });
 }

@@ -1,12 +1,12 @@
-import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
+import 'package:firebase_stacktrace_decoder/application/theme.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
-import 'package:firebase_stacktrace_decoder/widgets/action_popup_menu/action_popup_menu.dart';
-import 'package:firebase_stacktrace_decoder/widgets/buttons/buttons.dart';
 import 'package:firebase_stacktrace_decoder/widgets/project_preview/project_preview.dart';
+import 'package:firebase_stacktrace_decoder/widgets/ui/ui.dart';
 import 'package:flutter/material.dart';
-import 'package:string_ext/string_ext.dart';
 
+/// Sidebar with the project list. Header row + scrollable rows + footer
+/// counter. Visual matches the Claude Design handoff.
 class ProjectsList extends StatelessWidget {
   final ScrollController scrollController;
   final List<Project> projects;
@@ -28,166 +28,280 @@ class ProjectsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(child: _buildProjectsList(context)),
-        const SizedBox(height: 8)
+        _buildHeader(context),
+        Expanded(child: _buildList()),
+        _buildFooter(context),
       ],
     );
   }
 
-  Widget _buildProjectsList(BuildContext context) {
+  Widget _buildHeader(BuildContext context) {
     final l = context.l;
-    final itemCount = projects.length;
-    final items = projects;
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(4),
-              topLeft: Radius.circular(4),
-            ),
-            color: Colors.white,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(l.projectListTitle),
-              AddButton(
-                onPressed: onAddProject,
-                tooltip: l.projectLisAddBtnTooltip,
-              )
-            ],
-          ),
-        ),
-        const Divider(height: 1.5),
-        Expanded(
-          child: FadingEdgeScrollView.fromScrollView(
-            child: ListView.builder(
-              controller: scrollController,
-              itemBuilder: (context, index) {
-                final project = items[index];
-                return _ProjectListItem(
-                  project: project,
-                  onRemovePress: () => onRemovePress(project),
-                  onEditPress: () => onEditPress(project),
-                  onDoubleTap: () => onProjectSelect(project),
-                );
-              },
-              itemCount: itemCount,
+    final t = context.tokens;
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: AppTokens.s3),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: t.border)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              l.projectListTitle.toUpperCase(),
+              style: TextStyle(
+                color: t.textDim,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.6,
+              ),
             ),
           ),
-        ),
-      ],
+          AppButton.iconOnly(
+            icon: AppIcons.add,
+            size: AppButtonSize.sm,
+            tooltip: l.projectLisAddBtnTooltip,
+            onPressed: onAddProject,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildList() {
+    return Padding(
+      padding: const EdgeInsets.all(AppTokens.s1 + 2),
+      child: ListView.separated(
+        controller: scrollController,
+        itemCount: projects.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 2),
+        itemBuilder: (context, i) {
+          final p = projects[i];
+          return _ProjectRow(
+            project: p,
+            onDoubleTap: () => onProjectSelect(p),
+            onRemove: () => onRemovePress(p),
+            onEdit: () => onEditPress(p),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildFooter(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppTokens.s3, vertical: 6),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: t.border)),
+      ),
+      child: Text(
+        '${projects.length} project${projects.length == 1 ? '' : 's'}',
+        style: TextStyle(color: t.textDim, fontSize: 11),
+      ),
     );
   }
 }
 
-class _ProjectListItem extends StatelessWidget {
+class _ProjectRow extends StatefulWidget {
   final Project project;
-  final VoidCallback onRemovePress;
-  final VoidCallback onEditPress;
   final VoidCallback onDoubleTap;
+  final VoidCallback onRemove;
+  final VoidCallback onEdit;
 
-  const _ProjectListItem({
+  const _ProjectRow({
     required this.project,
-    required this.onRemovePress,
-    required this.onEditPress,
     required this.onDoubleTap,
+    required this.onRemove,
+    required this.onEdit,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final l = context.l;
-    final preview = project.preview;
-    final isEnabled = project.hasPlatforms;
-    final platformsColor =
-        isEnabled ? const Color(0xff878787) : const Color(0xffb8b8b8);
-    final nameColor =
-        isEnabled ? const Color(0xff222222) : const Color(0xff858585);
-    final nameStyle = TextStyle(color: nameColor, fontSize: 16);
-    final platformsStyle = TextStyle(fontSize: 14, color: platformsColor);
+  State<_ProjectRow> createState() => _ProjectRowState();
+}
 
-    final itemColor = isEnabled ? null : const Color(0xfff4f4f4);
-    return ClipRect(
-      child: Tooltip(
-        message:
-            isEnabled ? l.projectListTooltipText : l.disableProjectTooltipText,
-        child: GestureDetector(
-          onDoubleTap: isEnabled ? onDoubleTap : null,
-          child: ClipRRect(
-            child: Card(
-              color: itemColor,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 80),
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 8, end: 16),
-                  child: Row(
-                    children: [
-                      if (preview.isNotNullNorEmpty)
-                        ProjectPreview(
-                          preview: preview!,
-                        ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildText(
-                                project.name,
-                                style: nameStyle,
-                              ),
-                              Text(
-                                _getPlatformsTitle(isEnabled, l),
-                                style: platformsStyle,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      _buildPopupMenu(l, project),
-                    ],
+class _ProjectRowState extends State<_ProjectRow> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = context.l;
+    final p = widget.project;
+    final enabled = p.hasPlatforms;
+
+    final row = AppListRow(
+      onDoubleTap: enabled ? widget.onDoubleTap : null,
+      dim: !enabled,
+      child: Row(
+        children: [
+          _Preview(preview: p.preview, seed: p.name),
+          const SizedBox(width: AppTokens.s3),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  p.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: enabled ? t.text : t.textMuted,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
                   ),
                 ),
-              ),
+                const SizedBox(height: 2),
+                Text(
+                  _summary(p, l),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: enabled ? t.textMuted : t.textDim,
+                    fontSize: 11.5,
+                    height: 1.2,
+                  ),
+                ),
+              ],
             ),
           ),
+          AnimatedOpacity(
+            duration: AppTokens.motionFast,
+            opacity: _hover ? 1 : 0,
+            child: AppMenuButton<_MenuAction>(
+              tooltip: enabled
+                  ? l.projectListTooltipText
+                  : l.disableProjectTooltipText,
+              items: [
+                AppMenuItem<_MenuAction>(
+                  value: _MenuAction.edit,
+                  label: l.editProjectTitle,
+                  icon: AppIcons.edit,
+                ),
+                const AppMenuItem<_MenuAction>.divider(),
+                AppMenuItem<_MenuAction>(
+                  value: _MenuAction.remove,
+                  label: l.removeProjectTitle,
+                  icon: AppIcons.trash,
+                  danger: true,
+                ),
+              ],
+              onSelected: (a) {
+                switch (a) {
+                  case _MenuAction.edit:
+                    widget.onEdit();
+                    break;
+                  case _MenuAction.remove:
+                    widget.onRemove();
+                    break;
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: Tooltip(
+        message: enabled
+            ? l.projectListTooltipText
+            : l.disableProjectTooltipText,
+        child: row,
+      ),
+    );
+  }
+
+  String _summary(Project p, AppLocalizations l) {
+    if (!p.hasPlatforms) return l.projectItemEmptyTitle;
+    return p.activeVersions
+        .map((v) {
+          final platforms = v.platforms
+              .where((pl) => pl.isActive)
+              .map((e) => e.name)
+              .join(', ');
+          return '${v.version}: $platforms';
+        })
+        .join(' • ');
+  }
+}
+
+enum _MenuAction { edit, remove }
+
+class _Preview extends StatelessWidget {
+  final String? preview;
+  final String seed;
+  const _Preview({required this.preview, required this.seed});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    if (preview != null && preview!.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(AppTokens.radiusSm),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            border: Border.all(color: t.border),
+            borderRadius: BorderRadius.circular(AppTokens.radiusSm),
+          ),
+          child: ProjectPreview(preview: preview!, previewSize: 40),
+        ),
+      );
+    }
+    return _Monogram(seed: seed);
+  }
+}
+
+/// Deterministic monogram thumbnail for projects without a preview image.
+class _Monogram extends StatelessWidget {
+  final String seed;
+  const _Monogram({required this.seed});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final letter =
+        seed.isNotEmpty ? seed.characters.first.toUpperCase() : '?';
+    final hue = _hashHue(seed);
+    final bg = HSLColor.fromAHSL(1.0, hue,
+        Theme.of(context).brightness == Brightness.dark ? 0.22 : 0.30, 0.92).toColor();
+    final fg = HSLColor.fromAHSL(1.0, hue, 0.50,
+            Theme.of(context).brightness == Brightness.dark ? 0.65 : 0.42)
+        .toColor();
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark ? bg.withValues(alpha: 0.4) : bg,
+        border: Border.all(color: t.border),
+        borderRadius: BorderRadius.circular(AppTokens.radiusSm),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: TextStyle(
+          color: fg,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
 
-  String _getPlatformsTitle(bool isEnabled, AppLocalizations l) {
-    if (!isEnabled) return l.projectItemEmptyTitle;
-    return project.activeVersions
-        .map((v) {
-          final platforms =
-              v.platforms.where((p) => p.isActive).map((e) => e.name).join(', ');
-          return '${v.version}: $platforms';
-        })
-        .join(' • ');
-  }
-
-  Widget _buildText(String title, {required TextStyle style}) {
-    return Text(
-      title,
-      maxLines: 1,
-      overflow: TextOverflow.fade,
-      softWrap: false,
-      style: style,
-    );
-  }
-
-  Widget _buildPopupMenu(AppLocalizations l, Project project) {
-    return ActionPopupMenu(
-      removeActionTitle: l.removeProjectTitle,
-      editActionTitle: l.editProjectTitle,
-      onRemoveActionSelect: onRemovePress,
-      onEditActionSelect: onEditPress,
-      iconColor: const Color(0xff8c8c8c),
-    );
+  static double _hashHue(String s) {
+    var h = 0;
+    for (var i = 0; i < s.length; i++) {
+      h = (h * 31 + s.codeUnitAt(i)) & 0x7fffffff;
+    }
+    return (h % 360).toDouble();
   }
 }

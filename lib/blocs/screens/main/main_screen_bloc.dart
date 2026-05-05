@@ -10,8 +10,6 @@ import 'package:firebase_stacktrace_decoder/cmd/exception/run_exception.dart';
 import 'package:firebase_stacktrace_decoder/cmd/flutter_cmd.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/repositories/repositories.dart';
-import 'package:firebase_stacktrace_decoder/widgets/drop_target_box/drop_target_box.dart';
-import 'package:firebase_stacktrace_decoder/widgets/platform_tab_data/platform_tab_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as path;

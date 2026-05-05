@@ -4,7 +4,7 @@ import 'package:firebase_stacktrace_decoder/widgets/ui/surfaces.dart';
 import 'package:flutter/material.dart';
 
 class AppMenuItem<T> {
-  final T value;
+  final T? value;
   final String label;
   final IconData? icon;
   final String? shortcut;
@@ -12,7 +12,7 @@ class AppMenuItem<T> {
   final bool divider;
 
   const AppMenuItem({
-    required this.value,
+    required T this.value,
     required this.label,
     this.icon,
     this.shortcut,
@@ -20,7 +20,7 @@ class AppMenuItem<T> {
   }) : divider = false;
 
   const AppMenuItem.divider()
-      : value = null as T,
+      : value = null,
         label = '',
         icon = null,
         shortcut = null,
@@ -55,7 +55,7 @@ Future<T?> showAppPopupMenu<T>({
           PopupMenuDivider(height: 9)
         else
           PopupMenuItem<T>(
-            value: item.value,
+            value: item.value as T,
             padding: EdgeInsets.zero,
             height: 32,
             child: _MenuRow(
