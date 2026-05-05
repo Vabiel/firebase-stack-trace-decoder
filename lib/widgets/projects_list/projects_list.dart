@@ -1,5 +1,6 @@
 import 'package:firebase_stacktrace_decoder/application/localization.dart';
 import 'package:firebase_stacktrace_decoder/application/theme.dart';
+import 'package:firebase_stacktrace_decoder/application/theme_controller.dart';
 import 'package:firebase_stacktrace_decoder/models/models.dart';
 import 'package:firebase_stacktrace_decoder/widgets/project_preview/project_preview.dart';
 import 'package:firebase_stacktrace_decoder/widgets/ui/ui.dart';
@@ -94,14 +95,56 @@ class ProjectsList extends StatelessWidget {
     final t = context.tokens;
     return Container(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppTokens.s3, vertical: 6),
+          horizontal: AppTokens.s3, vertical: 4),
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: t.border)),
       ),
-      child: Text(
-        '${projects.length} project${projects.length == 1 ? '' : 's'}',
-        style: TextStyle(color: t.textDim, fontSize: 11),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '${projects.length} project${projects.length == 1 ? '' : 's'}',
+              style: TextStyle(color: t.textDim, fontSize: 11),
+            ),
+          ),
+          const _ThemeToggle(),
+        ],
       ),
+    );
+  }
+}
+
+class _ThemeToggle extends StatelessWidget {
+  const _ThemeToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeController.instance,
+      builder: (_, mode, __) {
+        final IconData icon;
+        final String tooltip;
+        switch (mode) {
+          case ThemeMode.light:
+            icon = AppIcons.lightMode;
+            tooltip = 'Light theme — switch to dark';
+            break;
+          case ThemeMode.dark:
+            icon = AppIcons.darkMode;
+            tooltip = 'Dark theme — switch to system';
+            break;
+          case ThemeMode.system:
+            icon = Icons.brightness_auto_outlined;
+            tooltip = 'System theme — switch to light';
+            break;
+        }
+        return AppButton.iconOnly(
+          icon: icon,
+          size: AppButtonSize.sm,
+          tooltip: tooltip,
+          onPressed: ThemeController.instance.cycle,
+        );
+      },
     );
   }
 }

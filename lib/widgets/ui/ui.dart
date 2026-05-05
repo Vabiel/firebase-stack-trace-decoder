@@ -9,6 +9,7 @@ export 'code_block.dart';
 export 'drop_zone.dart';
 export 'empty_state.dart';
 export 'icons.dart';
+export 'loader.dart';
 export 'popup_menu.dart';
 export 'surfaces.dart';
 export 'tab_strip.dart';

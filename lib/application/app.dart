@@ -1,7 +1,9 @@
 import 'package:firebase_stacktrace_decoder/application/routes.dart';
 import 'package:firebase_stacktrace_decoder/application/theme.dart';
+import 'package:firebase_stacktrace_decoder/application/theme_controller.dart';
 import 'package:firebase_stacktrace_decoder/blocs/app/app_bloc.dart';
 import 'package:firebase_stacktrace_decoder/screens/launch_screen/launch_screen.dart';
+import 'package:firebase_stacktrace_decoder/widgets/ui/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +13,6 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'localization.dart';
 
 class FirebaseStacktraceDecoder extends StatelessWidget {
-  /// Creates a list of localization delegates for the application.
   static final List<LocalizationsDelegate<dynamic>> _localizationsDelegates = [
     AppLocalizations.delegate,
     DefaultCupertinoLocalizations.delegate,
@@ -23,7 +24,6 @@ class FirebaseStacktraceDecoder extends StatelessWidget {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey();
 
   FirebaseStacktraceDecoder({super.key}) {
-    // Needed to refer to plugins during initialization
     WidgetsFlutterBinding.ensureInitialized();
   }
 
@@ -31,9 +31,7 @@ class FirebaseStacktraceDecoder extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => AppBloc()..shown(),
-        ),
+        BlocProvider(create: (context) => AppBloc()..shown()),
       ],
       child: BlocBuilder<AppBloc, AppState>(
         buildWhen: (prev, cur) => cur is! AppReadySuccess && cur is! AppReady,
@@ -41,52 +39,58 @@ class FirebaseStacktraceDecoder extends StatelessWidget {
           if (state is AppInitial || state is AppLoadInProgress) {
             return _buildLaunchApp();
           }
-
           if (state is AppLoadSuccess) {
             return _buildMainApp();
           }
-
           return const Center(child: CircularProgressIndicator());
         },
       ),
     );
   }
 
-  Widget _buildLaunchApp() {
-    return _buildApp(
-      home: const LaunchScreen(),
-    );
-  }
+  Widget _buildLaunchApp() => _buildApp(home: const LaunchScreen());
 
-  Widget _buildMainApp() {
-    return _buildApp(
-      initialRoute: AppRoutes.main,
-      navigatorKey: _navigatorKey,
-      onGenerateRoute: _onGenerateRoute,
-    );
-  }
+  Widget _buildMainApp() => _buildApp(
+        initialRoute: AppRoutes.main,
+        navigatorKey: _navigatorKey,
+        onGenerateRoute: _onGenerateRoute,
+      );
 
   Widget _buildApp({
     Widget? home,
     String? initialRoute,
     GlobalKey<NavigatorState>? navigatorKey,
     RouteFactory? onGenerateRoute,
-    TransitionBuilder? builder,
   }) {
-    return GlobalLoaderOverlay(
-      overlayColor: Colors.black,
-      child: MaterialApp(
-        onGenerateRoute: onGenerateRoute,
-        navigatorKey: navigatorKey,
-        initialRoute: initialRoute,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.system,
-        supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: _localizationsDelegates,
-        builder: builder,
-        home: home,
-      ),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeController.instance,
+      builder: (_, mode, __) {
+        return MaterialApp(
+          onGenerateRoute: onGenerateRoute,
+          navigatorKey: navigatorKey,
+          initialRoute: initialRoute,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: mode,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: _localizationsDelegates,
+          home: home,
+          builder: (context, child) {
+            // Loader overlay must live INSIDE MaterialApp so the floating
+            // card can read theme tokens.
+            final t = Theme.of(context).extension<AppTokens>();
+            return GlobalLoaderOverlay(
+              overlayColor: t?.overlay ?? Colors.black54,
+              overlayWidgetBuilder: (_) =>
+                  const LoadingCard(
+                title: 'Decoding traces',
+                subtitle: 'Running flutter symbolize…',
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+        );
+      },
     );
   }
 
