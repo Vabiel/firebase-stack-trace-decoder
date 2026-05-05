@@ -8,7 +8,7 @@ part of 'artifact.dart';
 
 class ArtifactAdapter extends TypeAdapter<Artifact> {
   @override
-  final int typeId = 3;
+  final typeId = 3;
 
   @override
   Artifact read(BinaryReader reader) {
@@ -17,9 +17,9 @@ class ArtifactAdapter extends TypeAdapter<Artifact> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Artifact(
-      uid: fields[0] as String,
       filePath: fields[1] as String,
-      position: fields[2] as int,
+      uid: fields[0] as String,
+      position: fields[2] == null ? 1 : (fields[2] as num).toInt(),
     );
   }
 

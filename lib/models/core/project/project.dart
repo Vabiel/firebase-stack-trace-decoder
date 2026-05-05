@@ -1,13 +1,14 @@
 import 'package:firebase_stacktrace_decoder/models/models.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:list_ext/list_ext.dart';
 
 part 'project.g.dart';
 
 @HiveType(typeId: 0)
 class Project extends Entity {
-  // @HiveField(0)
-  // final String uid;
+  @HiveField(0)
+  @override
+  final String uid;
 
   @HiveField(1)
   final String name;
@@ -18,17 +19,18 @@ class Project extends Entity {
   @HiveField(3)
   final List<Platform> platforms;
 
-  // @HiveField(4)
-  // final int position;
+  @HiveField(4)
+  @override
+  final int position;
 
   @HiveField(5)
   final String? preview;
 
   Project({
-    required super.uid,
+    required this.uid,
     required this.name,
     required this.version,
-    super.position = -1,
+    this.position = -1,
     this.platforms = const [],
     this.preview,
   })  : assert(name.isNotEmpty),

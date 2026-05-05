@@ -8,7 +8,7 @@ part of 'platform.dart';
 
 class PlatformAdapter extends TypeAdapter<Platform> {
   @override
-  final int typeId = 1;
+  final typeId = 1;
 
   @override
   Platform read(BinaryReader reader) {
@@ -17,11 +17,12 @@ class PlatformAdapter extends TypeAdapter<Platform> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Platform(
-      uid: fields[0] as String,
       type: fields[1] as PlatformType,
-      artifacts: (fields[2] as List).cast<Artifact>(),
-      position: fields[3] as int,
-      isActive: fields[4] as bool,
+      uid: fields[0] as String,
+      position: fields[3] == null ? -1 : (fields[3] as num).toInt(),
+      artifacts:
+          fields[2] == null ? const [] : (fields[2] as List).cast<Artifact>(),
+      isActive: fields[4] == null ? true : fields[4] as bool,
     );
   }
 
@@ -54,7 +55,7 @@ class PlatformAdapter extends TypeAdapter<Platform> {
 
 class PlatformTypeAdapter extends TypeAdapter<PlatformType> {
   @override
-  final int typeId = 2;
+  final typeId = 2;
 
   @override
   PlatformType read(BinaryReader reader) {
@@ -81,22 +82,16 @@ class PlatformTypeAdapter extends TypeAdapter<PlatformType> {
     switch (obj) {
       case PlatformType.android:
         writer.writeByte(0);
-        break;
       case PlatformType.ios:
         writer.writeByte(1);
-        break;
       case PlatformType.linux:
         writer.writeByte(2);
-        break;
       case PlatformType.macos:
         writer.writeByte(3);
-        break;
       case PlatformType.windows:
         writer.writeByte(4);
-        break;
       case PlatformType.fuchsia:
         writer.writeByte(5);
-        break;
     }
   }
 

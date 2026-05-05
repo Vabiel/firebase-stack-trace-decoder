@@ -4,9 +4,9 @@ import 'package:firebase_stacktrace_decoder/cmd/flutter_cmd.dart';
 import 'package:firebase_stacktrace_decoder/repositories/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
-import '../models/models.dart';
+import '../hive_registrar.g.dart';
 
 /// Dependency management initializer.
 class DependencyInjectionInitializer {
@@ -40,10 +40,7 @@ class DependencyInjectionInitializer {
     Get.put(ArtifactLocalProvider());
     Get.put(PlatformLocalProvider());
     Get.put(ProjectLocalProvider());
-    Hive.registerAdapter(PlatformTypeAdapter());
-    Hive.registerAdapter(ArtifactAdapter());
-    Hive.registerAdapter(PlatformAdapter());
-    Hive.registerAdapter(ProjectAdapter());
+    Hive.registerAdapters();
   }
 
   static Future<void> _initializeProviders() async {

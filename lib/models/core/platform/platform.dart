@@ -1,12 +1,13 @@
 import 'package:firebase_stacktrace_decoder/models/models.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 part 'platform.g.dart';
 
 @HiveType(typeId: 1)
 class Platform extends Entity {
-  // @HiveField(0)
-  // final String uid;
+  @HiveField(0)
+  @override
+  final String uid;
 
   @HiveField(1)
   final PlatformType type;
@@ -14,16 +15,17 @@ class Platform extends Entity {
   @HiveField(2)
   final List<Artifact> artifacts;
 
-  // @HiveField(3)
-  // final int position;
+  @HiveField(3)
+  @override
+  final int position;
 
   @HiveField(4)
   final bool isActive;
 
-  const Platform({
+  Platform({
     required this.type,
-    required super.uid,
-    super.position = -1,
+    required this.uid,
+    this.position = -1,
     this.artifacts = const [],
     this.isActive = true,
   });

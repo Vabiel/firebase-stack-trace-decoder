@@ -1,5 +1,5 @@
 import 'package:firebase_stacktrace_decoder/application/path_provider.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 /// Локальное хранилище данных.
 class LocalStore {

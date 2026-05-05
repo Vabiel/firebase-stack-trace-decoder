@@ -58,10 +58,15 @@ class _MainScreenState extends State<MainScreen> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: MultiSplitView(
-            initialAreas: [Area(weight: 0.35)],
-            children: [
-              _buildProjectList(),
-              _buildTabbedView(),
+            initialAreas: [
+              Area(
+                flex: 0.35,
+                builder: (context, area) => _buildProjectList(),
+              ),
+              Area(
+                flex: 0.65,
+                builder: (context, area) => _buildTabbedView(),
+              ),
             ],
           ),
         ),

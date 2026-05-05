@@ -1,5 +1,5 @@
 import 'package:firebase_stacktrace_decoder/models/models.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 abstract class LocalProviderBase<T extends Entity> {
   var _initialized = false;
