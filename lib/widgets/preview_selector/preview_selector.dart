@@ -36,7 +36,7 @@ class _PreviewSelectorState extends State<PreviewSelector> {
   }
 
   Widget _buildPicker(BuildContext context) {
-    const borderColor = AppTheme.borderColor;
+    final borderColor = AppTheme.borderColor;
     final l = context.l;
     return SizedBox.square(
       dimension: _previewSize,
@@ -47,7 +47,7 @@ class _PreviewSelectorState extends State<PreviewSelector> {
         child: Center(
           child: Text(
             l.previewSelectorTitle,
-            style: const TextStyle(color: borderColor),
+            style: TextStyle(color: borderColor),
           ),
         ),
       ),
