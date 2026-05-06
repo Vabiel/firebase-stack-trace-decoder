@@ -7,3 +7,4 @@ Cross-platform application that automates work with firebase crashlytics.
 ![](https://raw.githubusercontent.com/Vabiel/firebase-stack-trace-decoder/master/readme_images/scr2.png)
 ![](https://raw.githubusercontent.com/Vabiel/firebase-stack-trace-decoder/master/readme_images/scr3.png)
 ![](https://raw.githubusercontent.com/Vabiel/firebase-stack-trace-decoder/master/readme_images/scr4.png)
+![](https://raw.githubusercontent.com/Vabiel/firebase-stack-trace-decoder/master/readme_images/scr5.png)
