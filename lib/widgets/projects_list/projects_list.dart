@@ -103,7 +103,7 @@ class ProjectsList extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              '${projects.length} project${projects.length == 1 ? '' : 's'}',
+              context.l.projectsCountText(projects.length),
               style: TextStyle(color: t.textDim, fontSize: 11),
             ),
           ),
@@ -119,6 +119,7 @@ class _ThemeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l;
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: ThemeController.instance,
       builder: (_, mode, __) {
@@ -127,15 +128,15 @@ class _ThemeToggle extends StatelessWidget {
         switch (mode) {
           case ThemeMode.light:
             icon = AppIcons.lightMode;
-            tooltip = 'Light theme — switch to dark';
+            tooltip = l.themeToggleLightTooltip;
             break;
           case ThemeMode.dark:
             icon = AppIcons.darkMode;
-            tooltip = 'Dark theme — switch to system';
+            tooltip = l.themeToggleDarkTooltip;
             break;
           case ThemeMode.system:
             icon = Icons.brightness_auto_outlined;
-            tooltip = 'System theme — switch to light';
+            tooltip = l.themeToggleSystemTooltip;
             break;
         }
         return AppButton.iconOnly(

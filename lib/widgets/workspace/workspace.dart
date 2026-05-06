@@ -133,7 +133,7 @@ class _WorkspaceViewState extends State<WorkspaceView>
             kind: AppButtonKind.ghost,
             size: AppButtonSize.sm,
             icon: AppIcons.reset,
-            label: 'Clear',
+            label: l.clearButtonTitle,
             onPressed: _manualEntries.any((e) => e.controller.text.isNotEmpty)
                 ? _clearAll
                 : null,
@@ -224,6 +224,7 @@ class _ArtifactBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = context.l;
     return Container(
       padding: const EdgeInsets.symmetric(
           horizontal: AppTokens.s4, vertical: AppTokens.s2),
@@ -234,7 +235,7 @@ class _ArtifactBar extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            'SYMBOLS',
+            l.workspaceSymbolsLabel,
             style: TextStyle(
               color: t.textDim,
               fontSize: 11,
@@ -262,7 +263,7 @@ class _ArtifactBar extends StatelessWidget {
                 BoxDecoration(color: t.success, shape: BoxShape.circle),
           ),
           Text(
-            'Symbols loaded',
+            l.workspaceSymbolsLoaded,
             style: TextStyle(color: t.textMuted, fontSize: 11.5),
           ),
         ],
@@ -338,7 +339,7 @@ class _DragModeState extends State<_DragMode> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  _hover ? 'Release to decode' : l.dropTargetBoxTitle,
+                  _hover ? l.dropZoneReleaseLabel : l.dropTargetBoxTitle,
                   style: TextStyle(
                     color: t.text,
                     fontSize: 14,
@@ -347,7 +348,7 @@ class _DragModeState extends State<_DragMode> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Plain text or .txt — multiple files supported',
+                  l.dropZoneSubtitle,
                   style: TextStyle(color: t.textMuted, fontSize: 12),
                 ),
                 const SizedBox(height: 12),
@@ -363,7 +364,7 @@ class _DragModeState extends State<_DragMode> {
                       child: GestureDetector(
                         onTap: _browse,
                         child: Text(
-                          'or browse files…',
+                          l.dropZoneBrowseHint,
                           style:
                               TextStyle(color: t.textMuted, fontSize: 12),
                         ),
@@ -428,7 +429,7 @@ class _ManualMode extends StatelessWidget {
                   if (i > 0) const SizedBox(height: 10),
                   _ManualBlock(
                     key: ValueKey(entries[i].id),
-                    label: 'TRACE ${i + 1}',
+                    label: l.manualBlockLabel(i + 1),
                     entry: entries[i],
                     onDecode: () => onDecodeOne(entries[i]),
                     onRemove: onRemoveEntry == null
@@ -531,7 +532,7 @@ class _ManualBlockState extends State<_ManualBlock> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '$lineCount lines',
+                  l.linesCountText(lineCount),
                   style: TextStyle(
                     color: t.textDim,
                     fontSize: 11,
@@ -550,7 +551,7 @@ class _ManualBlockState extends State<_ManualBlock> {
                 AppButton(
                   kind: AppButtonKind.secondary,
                   size: AppButtonSize.sm,
-                  label: 'Decode',
+                  label: l.decodeButtonTitle,
                   onPressed: text.isEmpty ? null : widget.onDecode,
                 ),
               ],

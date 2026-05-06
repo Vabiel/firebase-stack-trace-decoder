@@ -94,13 +94,13 @@ class _DecodeResultScreenState extends State<DecodeResultScreen> {
       child: Row(
         children: [
           Text(
-            '$count of $count decoded',
+            l.decodeResultDecodedSummary(count),
             style: TextStyle(color: t.textMuted, fontSize: 12),
           ),
           const Spacer(),
           AppButton(
             kind: AppButtonKind.ghost,
-            label: 'Close',
+            label: l.closeButtonTitle,
             onPressed: () => Navigator.of(context).pop(),
           ),
           const SizedBox(width: AppTokens.s2),
@@ -133,6 +133,7 @@ class _ResultBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = context.l;
     final lineCount = '\n'.allMatches(result.result).length + 1;
     return Container(
       decoration: BoxDecoration(
@@ -173,7 +174,7 @@ class _ResultBlock extends StatelessWidget {
                     _ModeBadge(mode: result.mode),
                     const SizedBox(width: 8),
                     Text(
-                      '$lineCount lines',
+                      l.linesCountText(lineCount),
                       style: TextStyle(color: t.textDim, fontSize: 11),
                     ),
                     const Spacer(),
@@ -181,7 +182,7 @@ class _ResultBlock extends StatelessWidget {
                       kind: AppButtonKind.ghost,
                       size: AppButtonSize.sm,
                       icon: AppIcons.copy,
-                      label: 'Copy',
+                      label: l.copyButtonTitle,
                       onPressed: () => Clipboard.setData(
                           ClipboardData(text: result.result)),
                     ),
@@ -190,7 +191,7 @@ class _ResultBlock extends StatelessWidget {
                       kind: AppButtonKind.secondary,
                       size: AppButtonSize.sm,
                       icon: AppIcons.save,
-                      label: 'Save',
+                      label: l.saveButtonTitle,
                       onPressed: onSave,
                     ),
                   ],
@@ -218,7 +219,10 @@ class _ModeBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final label = mode.isManual ? 'manual' : 'drag-n-drop';
+    final l = context.l;
+    final label = mode.isManual
+        ? l.decodeResultModeManualBadge
+        : l.decodeResultModeDragBadge;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(

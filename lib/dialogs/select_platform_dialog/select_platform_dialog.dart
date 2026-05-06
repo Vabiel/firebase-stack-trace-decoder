@@ -63,7 +63,7 @@ class _SelectPlatformDialogBodyState
     final l = context.l;
 
     return AppDialogFrame(
-      title: 'Open ${widget.project.name}',
+      title: l.selectPlatformDialogTitle(widget.project.name),
       width: 420,
       onClose: () => Navigator.of(context).pop(),
       footer: [
@@ -75,7 +75,7 @@ class _SelectPlatformDialogBodyState
         ),
         AppButton(
           kind: AppButtonKind.primary,
-          label: 'Open',
+          label: l.openButtonTitle,
           onPressed: _selected == null
               ? null
               : () => Navigator.of(context).pop(_selected),
@@ -88,7 +88,7 @@ class _SelectPlatformDialogBodyState
           Padding(
             padding: const EdgeInsets.only(bottom: 14),
             child: Text(
-              'Pick a version and platform to decode against.',
+              l.selectPlatformDialogBody,
               style: TextStyle(color: t.textMuted, fontSize: 12.5),
             ),
           ),
@@ -136,6 +136,7 @@ class _SelectPlatformDialogBodyState
       required Platform platform,
       required bool showDivider}) {
     final t = context.tokens;
+    final l = context.l;
     final value = SelectPlatformResult(version, platform);
     final on = value == _selected;
     final artifactCount = platform.artifacts.length;
@@ -168,7 +169,7 @@ class _SelectPlatformDialogBodyState
               ),
               const Spacer(),
               Mono(
-                '$artifactCount artifact${artifactCount == 1 ? '' : 's'}',
+                l.artifactsCountText(artifactCount),
                 dim: true,
                 size: 11,
               ),

@@ -144,7 +144,7 @@ class _MainScreenState extends State<MainScreen> {
                 border: Border(bottom: BorderSide(color: t.border)),
               ),
               child: Text(
-                'No tabs open',
+                context.l.mainNoTabsOpen,
                 style: TextStyle(color: t.textDim, fontSize: 11.5),
               ),
             ),
@@ -158,11 +158,11 @@ class _MainScreenState extends State<MainScreen> {
     if (_tabs.isEmpty) {
       final l = context.l;
       return EmptyState(
-        title: 'Open a project to start decoding',
-        body: 'Double-click any project in the sidebar, or create a new one.',
-        shortcuts: const [
-          KbdHint(keys: ['⌘', 'N'], text: 'Create a new project'),
-          KbdHint(keys: ['⌘', 'W'], text: 'Close the active tab'),
+        title: l.mainEmptyTitle,
+        body: l.mainEmptyBody,
+        shortcuts: [
+          KbdHint(keys: const ['⌘', 'N'], text: l.shortcutHintNewProject),
+          KbdHint(keys: const ['⌘', 'W'], text: l.shortcutHintCloseTab),
         ],
         action: AppButton(
           kind: AppButtonKind.primary,

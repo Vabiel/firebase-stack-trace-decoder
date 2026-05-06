@@ -59,7 +59,7 @@ class AppDialog {
           const Spacer(),
           AppButton(
             kind: AppButtonKind.primary,
-            label: 'OK',
+            label: l.okButtonTitle,
             onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],

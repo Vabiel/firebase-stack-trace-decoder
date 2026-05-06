@@ -76,16 +76,18 @@ class FirebaseStacktraceDecoder extends StatelessWidget {
           localizationsDelegates: _localizationsDelegates,
           home: home,
           builder: (context, child) {
-            // Loader overlay must live INSIDE MaterialApp so the floating
-            // card can read theme tokens.
+            // Loader overlay lives INSIDE MaterialApp so the floating card
+            // can read theme tokens AND localized strings.
             final t = Theme.of(context).extension<AppTokens>();
             return GlobalLoaderOverlay(
               overlayColor: t?.overlay ?? Colors.black54,
-              overlayWidgetBuilder: (_) =>
-                  const LoadingCard(
-                title: 'Decoding traces',
-                subtitle: 'Running flutter symbolize…',
-              ),
+              overlayWidgetBuilder: (_) {
+                final l = AppLocalizations.of(context);
+                return LoadingCard(
+                  title: l.loaderDecodeTitle,
+                  subtitle: l.loaderDecodeSubtitle,
+                );
+              },
               child: child ?? const SizedBox.shrink(),
             );
           },

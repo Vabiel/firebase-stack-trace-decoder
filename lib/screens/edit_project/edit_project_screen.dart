@@ -105,7 +105,7 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
             _buildHeader(l),
             const SizedBox(height: AppTokens.s4),
             SectionLabel(
-              text: 'Versions',
+              text: l.versionsSectionLabel,
               trailing: AppButton(
                 kind: AppButtonKind.ghost,
                 size: AppButtonSize.sm,
@@ -166,7 +166,7 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'The display name shown in the sidebar.',
+                l.editProjectNameHelper,
                 style: TextStyle(color: t.textDim, fontSize: 11),
               ),
             ],
@@ -192,7 +192,7 @@ class _EditProjectScreenState extends State<EditProjectScreen> {
             AppButton(
               kind: AppButtonKind.destructiveSecondary,
               icon: AppIcons.trash,
-              label: l.deleteButtonTitle,
+              label: l.deleteProjectButtonLabel,
               onPressed: () => _onDeletePressed(context),
             ),
           const Spacer(),
@@ -501,7 +501,7 @@ class _VersionCardState extends State<_VersionCard> {
                       child: AppTextField(
                         controller: widget.state.versionController,
                         mono: true,
-                        hintText: '1.0.0',
+                        hintText: l.editProjectVersionPlaceholder,
                         errorText: widget.showError &&
                                 widget.state.versionController.text.isEmpty
                             ? l.filledTextError(
@@ -646,7 +646,7 @@ class _PlatformSection extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${platform.artifacts.length} artifact${platform.artifacts.length == 1 ? '' : 's'}',
+                      l.artifactsCountText(platform.artifacts.length),
                       style: TextStyle(color: t.textDim, fontSize: 11),
                     ),
                     const Spacer(),
@@ -654,7 +654,7 @@ class _PlatformSection extends StatelessWidget {
                       kind: AppButtonKind.ghost,
                       size: AppButtonSize.sm,
                       icon: AppIcons.add,
-                      label: 'Add artifact',
+                      label: l.addArtifactButtonTitle,
                       tooltip: l.platformListItemAddTooltip(platform.name),
                       onPressed: () => _onAddArtifacts(context),
                     ),
@@ -755,14 +755,14 @@ class _ArtifactRow extends StatelessWidget {
             kind: AppButtonKind.ghost,
             size: AppButtonSize.sm,
             icon: AppIcons.edit,
-            tooltip: 'Replace',
+            tooltip: context.l.replaceButtonTitle,
             onPressed: onEdit,
           ),
           AppButton(
             kind: AppButtonKind.ghost,
             size: AppButtonSize.sm,
             icon: AppIcons.trash,
-            tooltip: 'Remove',
+            tooltip: context.l.removeButtonTitle,
             onPressed: onRemove,
           ),
         ],
