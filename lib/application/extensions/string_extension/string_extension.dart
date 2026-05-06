@@ -4,11 +4,11 @@ extension StrackTraceExtenion on String {
   String prepareStackTrace(PlatformType platformType) {
     const emptyStr = '';
     const commonPatternPart =
-        r' _kDartIsolateSnapshotInstructions(\+)\dx[0-9a-z]{5,6}';
+        r' _kDartIsolateSnapshotInstructions\+0x[0-9a-f]{4,8}';
     const androidPattern =
-        r'#\d{2} abs 0 virt [0-9a-z]{16}' + commonPatternPart;
+        r'#\d{2} abs [0-9a-f]+ virt [0-9a-f]{16}' + commonPatternPart;
 
-    const iOSPattern = r'#\d{2} abs 0' + commonPatternPart;
+    const iOSPattern = r'#\d{2} abs [0-9a-f]+' + commonPatternPart;
     const space = '    ';
 
     final androidPlatformRegExp = RegExp(androidPattern, caseSensitive: false);
